@@ -1,0 +1,387 @@
+import type { Game } from "@/lib/types";
+
+// ---------------------------------------------------------------------------
+// AFRICAN GAMES — PC (Steam) & Android (Google Play).
+//
+// EVERY Steam appid below was VERIFIED against the live Steam API: the id was
+// resolved via storesearch and then confirmed by checking that Steam's own
+// `developers`/`publishers` field names the expected African studio.
+// See scripts/discover-steam.ts — it prints both verified and REJECTED
+// candidates, and rejected candidates never enter this file.
+//
+// Why that matters: an earlier revision of this seed carried two appids taken
+// from memory. Both were wrong — 378810 is "Steamroll" (Anticto) and 700990 is
+// "Gunship Battle2 VR" (JOYCITY) — so the platform was rendering unrelated
+// games' review scores under African titles. Verification caught it. Never
+// assert a store id without confirming it against the source.
+//
+// Android: Google Play exposes NO free catalogue API, so `androidPackage` is
+// verified only for EXISTENCE (the store URL resolves) and all Play metrics
+// remain N/A. See src/lib/data-sources/googleplay.ts.
+// ---------------------------------------------------------------------------
+
+const steam = (id: number) => ({
+  steamAppId: id,
+  storeLinks: { steam: `https://store.steampowered.com/app/${id}` },
+});
+
+const play = (pkg: string) => ({
+  androidPackage: pkg,
+  storeLinks: { googleplay: `https://play.google.com/store/apps/details?id=${pkg}` },
+});
+
+export const GAMES: Game[] = [
+  // ── Free Lives (Cape Town, South Africa) ────────────────────────────────
+  {
+    id: "broforce",
+    title: "Broforce",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2015,
+    genres: ["Action", "Platformer"],
+    engine: "Unity",
+    platforms: ["PC", "macOS", "Linux", "PlayStation", "Nintendo Switch"],
+    ...steam(274190),
+    ipType: "original",
+    status: "released",
+    achievements: ["Published by Devolver Digital", "Metascore 83"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "gorn",
+    title: "GORN",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2019,
+    genres: ["Action", "VR"],
+    engine: "Unity",
+    platforms: ["PC", "VR"],
+    ...steam(578620),
+    ipType: "original",
+    status: "released",
+    achievements: ["Published by Devolver Digital"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "gorn-2",
+    title: "GORN 2",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2025,
+    genres: ["Action", "VR"],
+    engine: "Unity",
+    platforms: ["PC", "VR"],
+    ...steam(3391450),
+    ipType: "original",
+    status: "released",
+    achievements: ["Co-developed with Cortopia Studios"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "terra-nil",
+    title: "Terra Nil",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2023,
+    genres: ["Strategy", "Simulation"],
+    engine: "Unity",
+    platforms: ["PC", "macOS", "Linux", "Nintendo Switch", "Mobile"],
+    ...steam(1593030),
+    ipType: "original",
+    status: "released",
+    achievements: ["Co-developed with Clockwork Acorn", "Published by Devolver Digital"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "anger-foot",
+    title: "Anger Foot",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2024,
+    genres: ["Action", "Shooter"],
+    engine: "Unity",
+    platforms: ["PC"],
+    ...steam(1978590),
+    ipType: "original",
+    status: "released",
+    achievements: ["Published by Devolver Digital"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "genital-jousting",
+    title: "Genital Jousting",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2018,
+    genres: ["Casual", "Indie"],
+    engine: "Unity",
+    platforms: ["PC", "macOS"],
+    ...steam(469820),
+    ipType: "original",
+    status: "released",
+    achievements: ["Published by Devolver Digital"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+  {
+    id: "stick-it-to-the-stickman",
+    title: "Stick It to the Stickman",
+    studioId: "free-lives",
+    countryIso3: "ZAF",
+    releaseYear: 2025,
+    genres: ["Action", "Roguelike"],
+    engine: "Unity",
+    platforms: ["PC", "macOS"],
+    ...steam(2085540),
+    ipType: "original",
+    status: "released",
+    achievements: ["Published by Devolver Digital"],
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Studio website" }],
+  },
+
+  // ── Nyamakop (Johannesburg, South Africa) ───────────────────────────────
+  {
+    id: "semblance",
+    title: "Semblance",
+    studioId: "nyamakop",
+    countryIso3: "ZAF",
+    releaseYear: 2018,
+    genres: ["Puzzle", "Platformer"],
+    engine: "Unity",
+    platforms: ["PC", "macOS", "Nintendo Switch", "PlayStation"],
+    ...steam(700160),
+    ipType: "original",
+    status: "released",
+    achievements: ["First African-developed game published on Nintendo Switch"],
+    verified: true,
+    sources: [{ url: "https://nyamakop.com", label: "Studio website" }],
+  },
+  {
+    id: "relooted",
+    title: "Relooted",
+    studioId: "nyamakop",
+    countryIso3: "ZAF",
+    releaseYear: 2026,
+    genres: ["Action", "Heist"],
+    engine: "Unity",
+    platforms: ["PC"],
+    ...steam(3255890),
+    // Premise: reclaiming stolen African artefacts — a direct African-IP export case.
+    ipType: "historical",
+    status: "released",
+    achievements: ["African-heritage themed heist IP"],
+    verified: true,
+    sources: [{ url: "https://nyamakop.com", label: "Studio website" }],
+  },
+
+  // ── QCF Design (Cape Town, South Africa) ────────────────────────────────
+  {
+    id: "desktop-dungeons",
+    title: "Desktop Dungeons",
+    studioId: "qcf-design",
+    countryIso3: "ZAF",
+    releaseYear: 2013,
+    genres: ["Strategy", "Roguelike"],
+    engine: null,
+    platforms: ["PC", "macOS", "Linux"],
+    ...steam(226620),
+    ipType: "original",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://www.qcfdesign.com", label: "Studio website" }],
+  },
+  {
+    id: "desktop-dungeons-rewind",
+    title: "Desktop Dungeons: Rewind",
+    studioId: "qcf-design",
+    countryIso3: "ZAF",
+    releaseYear: 2023,
+    genres: ["Strategy", "Roguelike"],
+    engine: null,
+    platforms: ["PC"],
+    ...steam(1976950),
+    ipType: "original",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://www.qcfdesign.com", label: "Studio website" }],
+  },
+
+  // ── Kiro'o Games (Yaoundé, Cameroon) ────────────────────────────────────
+  {
+    id: "aurion",
+    title: "Aurion: Legacy of the Kori-Odan",
+    studioId: "kiroo-games",
+    countryIso3: "CMR",
+    releaseYear: 2016,
+    genres: ["Action", "RPG"],
+    engine: null,
+    platforms: ["PC"],
+    ...steam(368080),
+    ipType: "folklore",
+    status: "released",
+    achievements: ["Landmark Cameroonian-developed title released on Steam (2016)"],
+    verified: true,
+    sources: [{ url: "https://kiroogames.com", label: "Studio website" }],
+  },
+
+  // ── Celestial Games (South Africa) ──────────────────────────────────────
+  {
+    id: "toxic-bunny-hd",
+    title: "Toxic Bunny HD",
+    studioId: "celestial-games",
+    countryIso3: "ZAF",
+    releaseYear: 2014,
+    genres: ["Action", "Platformer"],
+    engine: null,
+    platforms: ["PC"],
+    ...steam(305010),
+    ipType: "original",
+    status: "released",
+    achievements: ["HD remake of a classic 1990s South African PC game"],
+    verified: true,
+    sources: [{ url: "https://store.steampowered.com/app/305010", label: "Steam store page" }],
+  },
+
+  // ── Android / mobile-first ──────────────────────────────────────────────
+  // Every package below was HARVESTED from the studio's own published games
+  // page and then VERIFIED to resolve (HTTP 200). Play exposes no free metrics
+  // API, so installs/ratings remain N/A rather than estimated.
+  {
+    id: "safari-city",
+    title: "Safari City",
+    studioId: "maliyo-games",
+    countryIso3: "NGA",
+    releaseYear: null,
+    genres: ["Puzzle", "Casual"],
+    engine: null,
+    platforms: ["Android"],
+    ...play("com.maliyo.safaricity"),
+    ipType: "contemporary",
+    status: "released",
+    achievements: ["Featured by Google Play (#WeArePlay, 2025)"],
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Studio games page" }],
+  },
+  {
+    id: "kewas-fashion",
+    title: "Kewa's Fashion",
+    studioId: "maliyo-games",
+    countryIso3: "NGA",
+    releaseYear: null,
+    genres: ["Casual", "Simulation"],
+    engine: null,
+    platforms: ["Android"],
+    ...play("com.maliyo.kewaboutique"),
+    ipType: "contemporary",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Studio games page" }],
+  },
+  {
+    id: "crazy-ludo",
+    title: "Crazy Ludo",
+    studioId: "maliyo-games",
+    countryIso3: "NGA",
+    releaseYear: null,
+    genres: ["Board", "Casual"],
+    engine: null,
+    platforms: ["Android"],
+    ...play("com.maliyo.crazyludo"),
+    // Ludo is a board game with deep popularity across Africa.
+    ipType: "contemporary",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Studio games page" }],
+  },
+  {
+    id: "whot-king",
+    title: "Whot King",
+    studioId: "maliyo-games",
+    countryIso3: "NGA",
+    releaseYear: null,
+    genres: ["Card", "Casual"],
+    engine: null,
+    platforms: ["Android"],
+    ...play("com.maliyo.whotking"),
+    // Whot is a Nigerian card-game staple — local IP digitised.
+    ipType: "contemporary",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Studio games page" }],
+  },
+  {
+    id: "iwaju-rising-chef",
+    title: "Disney Iwájú: Rising Chef",
+    studioId: "maliyo-games",
+    countryIso3: "NGA",
+    releaseYear: null,
+    genres: ["Casual", "Simulation"],
+    engine: null,
+    platforms: ["Android"],
+    ...play("com.disney.jollofkitchen"),
+    ipType: "licensed",
+    status: "released",
+    achievements: [
+      "Game tie-in to Disney/Kugali's Iwájú — a Nigerian animation IP extending into games",
+    ],
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Studio games page" }],
+  },
+
+  // ── Qene Games (Addis Ababa, Ethiopia) ──────────────────────────────────
+  // No store links published on the studio site, so none are recorded. The
+  // awards below are cited to the studio's own site.
+  {
+    id: "kukulu",
+    title: "Kukulu",
+    studioId: "qene-games",
+    countryIso3: "ETH",
+    releaseYear: null,
+    genres: ["Action", "Runner"],
+    engine: null,
+    platforms: ["Mobile"],
+    ipType: "contemporary",
+    status: "released",
+    achievements: ["AppsAfrica 2018 Award — Best Entertainment Solution"],
+    verified: true,
+    sources: [{ url: "https://qenetech.com", label: "Studio website" }],
+  },
+  {
+    id: "gebeta",
+    title: "Gebeta",
+    studioId: "qene-games",
+    countryIso3: "ETH",
+    releaseYear: null,
+    genres: ["Board", "Strategy"],
+    engine: null,
+    platforms: ["Mobile"],
+    // Gebeta is the Ethiopian variant of mancala — traditional IP digitised.
+    ipType: "folklore",
+    status: "released",
+    achievements: ["AppsAfrica 2020 Award — Best App of the Year"],
+    verified: true,
+    sources: [{ url: "https://qenetech.com", label: "Studio website" }],
+  },
+  {
+    id: "africas-legends",
+    title: "Africa's Legends",
+    studioId: "leti-arts",
+    countryIso3: "GHA",
+    releaseYear: null,
+    genres: ["Action"],
+    engine: null,
+    platforms: ["Mobile"],
+    // No verified store id yet — a guessed package returned 404, so none is
+    // recorded rather than fabricated.
+    ipType: "folklore",
+    status: "released",
+    verified: true,
+    sources: [{ url: "https://letiarts.com", label: "Studio website" }],
+  },
+];

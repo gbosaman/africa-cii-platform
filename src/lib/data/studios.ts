@@ -1,0 +1,243 @@
+import type { Studio, Game } from "@/lib/types";
+
+// ---------------------------------------------------------------------------
+// SEED DATASET — African game studios.
+//
+// Every entry is sourced to an official studio website (see `sources`).
+// Only facts we can point at a public source for are filled in; anything
+// uncertain is `null` (rendered as N/A), NEVER guessed. This is exactly the
+// discipline the rest of the platform enforces: ZERO ≠ UNKNOWN.
+//
+// This list is intentionally small and curated. It is NOT a claim of
+// completeness — the admin console + Phase 2 ingestion expand it with
+// provenance. Do not pad it with invented studios.
+// ---------------------------------------------------------------------------
+
+export const STUDIOS: Studio[] = [
+  {
+    id: "kiroo-games",
+    name: "Kiro'o Games",
+    countryIso3: "CMR",
+    city: "Yaoundé",
+    foundedYear: 2013,
+    website: "https://kiroogames.com",
+    categories: ["Indie", "PC"],
+    founders: ["Olivier Madiba"],
+    teamSize: null,
+    engines: null,
+    notableGames: ["Aurion: Legacy of the Kori-Odan"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://kiroogames.com", label: "Official website" }],
+    notes:
+      "First franchise: Aurion (PC, 2016). Team size / financials pending source. " +
+      "⚠ Source health: the official site's SSL certificate has expired (checked Aug 2026), so it could not be re-verified.",
+  },
+  {
+    id: "leti-arts",
+    name: "Leti Arts",
+    aliases: ["Leti Games"],
+    countryIso3: "GHA",
+    city: "Accra",
+    foundedYear: 2009,
+    website: "https://letiarts.com",
+    categories: ["Indie", "Mobile"],
+    founders: ["Eyram Tawia", "Wesley Kirinya"],
+    teamSize: null,
+    engines: null,
+    notableGames: ["Africa's Legends", "Karmzah", "Puzzle Scout", "Sweave"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://www.letiarts.com/games", label: "Official games page" }],
+    notes: "Operates across Accra and Nairobi. Titles harvested from the studio's games page; no store links published there.",
+  },
+  {
+    id: "maliyo-games",
+    name: "Maliyo Games",
+    countryIso3: "NGA",
+    city: "Lagos",
+    foundedYear: 2012,
+    website: "https://maliyo.com",
+    categories: ["Indie", "Mobile"],
+    founders: ["Hugo Obi"],
+    teamSize: null,
+    engines: null,
+    notableGames: ["Safari City", "Whot King", "Crazy Ludo", "Kewa's Fashion", "Disney Iwájú: Rising Chef"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://www.maliyo.com/games/", label: "Official games page" }],
+    notes:
+      "Mobile-first studio. Five Google Play packages harvested from the studio's own games page and verified to resolve — the only tracked studio with verified Android store presence.",
+  },
+  {
+    id: "nyamakop",
+    name: "Nyamakop",
+    countryIso3: "ZAF",
+    city: "Johannesburg",
+    foundedYear: 2015,
+    website: "https://nyamakop.com",
+    categories: ["Indie", "PC", "Console"],
+    founders: ["Ben Myres", "Cukia Kimani"],
+    teamSize: null,
+    engines: ["Unity"],
+    notableGames: ["Semblance"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://nyamakop.com", label: "Official website" }],
+    notes: "Semblance (2018) shipped on Switch, PS4 and PC.",
+  },
+  {
+    id: "carry1st",
+    name: "Carry1st",
+    countryIso3: "ZAF",
+    city: "Cape Town",
+    foundedYear: 2018,
+    website: "https://carry1st.com",
+    categories: ["Publisher", "Mobile"],
+    founders: ["Cordel Robbin-Coker", "Lucy Hoffman", "Tinotenda Mundangepfupfu"],
+    teamSize: null,
+    engines: null,
+    notableGames: [
+      "Mergedom: Home Design & Merge",
+      "Mancala Adventures",
+      "Mine Rescue!",
+      "Africa Glam",
+      "Ludo Blitz",
+    ],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://www.carry1st.com/", label: "Official website" }],
+    notes:
+      "Mobile games publisher & distribution platform for African markets. Published titles harvested from the studio site; it routes to its own game pages rather than store listings, so no store ids are recorded.",
+  },
+  {
+    id: "qene-games",
+    name: "Qene Games",
+    aliases: ["Qene Technologies"],
+    countryIso3: "ETH",
+    city: "Addis Ababa",
+    foundedYear: null,
+    website: "https://qenetech.com",
+    categories: ["Indie", "Mobile"],
+    founders: ["Dawit Abraham"],
+    teamSize: null,
+    engines: null,
+    notableGames: ["Kukulu", "Gebeta"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://qenetech.com", label: "Official website" }],
+    notes: "Founded year pending source verification.",
+  },
+  {
+    id: "usiku-games",
+    name: "Usiku Games",
+    countryIso3: "KEN",
+    city: "Nairobi",
+    foundedYear: null,
+    website: "https://usiku.games",
+    categories: ["Indie", "Mobile", "Serious Games"],
+    founders: ["Jay Shapiro"],
+    teamSize: null,
+    engines: null,
+    notableGames: [
+      "Electric Blue: Gecko Dash",
+      "Shamba Showdown",
+      "Wahenga: The Lost Ancestors",
+      "Usiku Beats",
+      "Sista Stories",
+    ],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://usiku.games", label: "Official website" }],
+    notes: "Social-impact / serious-games focus. Titles listed on the studio site; no store links published there, so no store ids are recorded.",
+  },
+  {
+    id: "masseka-game-studio",
+    name: "Masseka Game Studio",
+    countryIso3: "CAF",
+    city: "Bangui",
+    foundedYear: null,
+    website: "https://massekagamestudio.com",
+    categories: ["Indie"],
+    founders: ["Teddy Kossoko"],
+    teamSize: null,
+    engines: null,
+    notableGames: null,
+    status: "unknown",
+    verified: true,
+    sources: [{ url: "https://massekagamestudio.com", label: "Official website (unreachable)" }],
+    notes:
+      "One of the few studios originating in Central African Republic. " +
+      "⚠ Source health: the domain no longer resolves (DNS ENOTFOUND, checked Aug 2026) — status downgraded to unknown pending a new primary source.",
+  },
+  {
+    id: "free-lives",
+    name: "Free Lives",
+    countryIso3: "ZAF",
+    city: "Cape Town",
+    foundedYear: 2012,
+    website: "https://www.freelives.net",
+    categories: ["Indie", "PC", "Console"],
+    founders: null,
+    teamSize: null,
+    engines: ["Unity"],
+    notableGames: ["Broforce", "GORN", "Terra Nil", "Anger Foot"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://www.freelives.net", label: "Official website" }],
+    notes: "One of Africa's most commercially successful studios; multiple Devolver-published titles.",
+  },
+  {
+    id: "qcf-design",
+    name: "QCF Design",
+    countryIso3: "ZAF",
+    city: "Cape Town",
+    foundedYear: null,
+    website: "https://www.qcfdesign.com",
+    categories: ["Indie", "PC"],
+    founders: ["Rodain Joubert"],
+    teamSize: null,
+    engines: null,
+    notableGames: ["Desktop Dungeons"],
+    status: "active",
+    verified: true,
+    sources: [{ url: "https://www.qcfdesign.com", label: "Official website" }],
+    notes: "Creators of Desktop Dungeons. Founded year pending source verification.",
+  },
+  {
+    id: "celestial-games",
+    name: "Celestial Games",
+    countryIso3: "ZAF",
+    city: null,
+    foundedYear: null,
+    website: null,
+    categories: ["Indie", "PC"],
+    founders: null,
+    teamSize: null,
+    engines: null,
+    notableGames: ["Toxic Bunny HD"],
+    status: "unknown",
+    verified: true,
+    sources: [{ url: "https://store.steampowered.com/app/305010", label: "Steam (developer field)" }],
+    notes:
+      "Classic South African studio; Toxic Bunny is a well-known SA-developed title. Developer confirmed via Steam; city/founding pending a primary source.",
+  },
+];
+
+export const STUDIO_BY_ID: Record<string, Studio> = Object.fromEntries(
+  STUDIOS.map((s) => [s.id, s]),
+);
+
+// Verified games dataset lives in ./games.ts (every Steam appid confirmed
+// against the live API). Re-exported here for existing imports.
+export { GAMES } from "@/lib/data/games";
+
+// Phase 3 creative seeds (animation studios, esports orgs & tournaments) live
+// in ./creative.ts. Re-exported here for back-compat with existing imports.
+export {
+  ANIMATION_STUDIOS,
+  ESPORTS_ORGS,
+  ESPORTS_TOURNAMENTS,
+  animationCountByCountry,
+  esportsOrgCountByCountry,
+} from "@/lib/data/creative";

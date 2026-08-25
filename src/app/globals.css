@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a1020;
+  --panel: #0f1830;
+  --panel-2: #111a30;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1200px 600px at 78% -8%, rgba(245, 197, 24, 0.06), transparent 60%),
+    radial-gradient(1000px 700px at 0% 100%, rgba(22, 224, 122, 0.05), transparent 55%),
+    linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  color: #e7ecf5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  ::selection {
+    background: rgba(245, 197, 24, 0.28);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  /* Institutional panel */
+  .panel {
+    @apply rounded-xl border border-line bg-ink-800/60 shadow-panel backdrop-blur-sm;
+  }
+  .panel-tight {
+    @apply rounded-lg border border-line bg-ink-800/50;
+  }
+
+  /* Display headings — heavy condensed, shouty like the source poster */
+  .display {
+    font-family: var(--font-display), var(--font-sans), sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  /* Section eyebrow */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400;
+  }
+
+  /* Monospace data figure — the signature interactive object */
+  .figure {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* Clickable metric number */
+  .metric-link {
+    @apply figure cursor-pointer rounded px-0.5 underline decoration-dotted decoration-slate-600 underline-offset-4 transition-colors;
+  }
+  .metric-link:hover {
+    @apply text-gold-400 decoration-gold-500 bg-gold-500/5;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider;
+  }
+
+  /* py-2.5 keeps rows ≥44px on touch; tightens slightly on desktop pointers. */
+  .nav-item {
+    @apply flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-ink-700/70 hover:text-white lg:min-h-0 lg:py-2;
+  }
+  .nav-item-active {
+    @apply bg-ink-700 text-white shadow-[inset_2px_0_0_0_theme(colors.gold.500)];
+  }
+
+  .stat-grid {
+    @apply grid gap-px overflow-hidden rounded-xl border border-line bg-line;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .clip-slant {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  }
+}

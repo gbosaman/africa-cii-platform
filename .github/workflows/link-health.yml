@@ -1,0 +1,92 @@
+name: Link health sweep
+
+# Studio websites decay — domains lapse, certificates expire, studios fold.
+# This sweep runs on a schedule (NOT on every push: 180+ external requests per
+# commit would be both rude to those sites and hopelessly flaky) and opens a PR
+# when the recorded health changes, so no automated "this studio is dead" claim
+# reaches the site without a human reviewing it.
+
+on:
+  schedule:
+    - cron: "0 4 15 * *" # 04:00 UTC on the 15th (staggered from the ingest job)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report only; do not open a PR"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: link-health
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # The script writes a GitHub job summary itself, and exits non-zero ONLY
+      # if an implausible share of sites failed (i.e. the runner has restricted
+      # egress). Broken links are data, not a build failure.
+      - name: Sweep studio websites
+        run: npm run health:links
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/lib/data/link-health.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No change in recorded link health."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git --no-pager diff --stat -- src/lib/data/link-health.ts
+          fi
+
+      # Verify the regenerated data still compiles and passes tests BEFORE
+      # proposing it — a broken generator must never open a green-looking PR.
+      - name: Typecheck and test
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm run typecheck
+          npm run test
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="chore/link-health-$(date -u +%Y%m%d)"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add src/lib/data/link-health.ts
+          git commit -m "chore(data): refresh studio link-health sweep"
+          git push --force-with-lease origin "$BRANCH"
+          gh pr create \
+            --title "chore(data): refresh studio link-health sweep" \
+            --body "Automated monthly sweep of every studio website in the directory.
+
+          Each failure was re-checked with a longer timeout and a retry before being
+          recorded, so transient outages are filtered out. See the workflow run's job
+          summary for the full table of unhealthy links.
+
+          **Please review before merging** — a recorded failure becomes a visible
+          \"unreachable\" badge on that studio, and asserting an organisation is dead is
+          a claim worth a human glance. DNS failures usually mean the record needs
+          retiring or re-sourcing; an expired certificate usually means the studio still
+          exists but its site needs a new URL." \
+            --label "data" \
+            --head "$BRANCH" || echo "PR may already exist for $BRANCH"

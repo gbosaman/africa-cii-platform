@@ -1,0 +1,54 @@
+import type { Metadata } from "next";
+import { Inter, Archivo, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { MetricDrawerProvider } from "@/components/metric/MetricDrawerProvider";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  variable: "--font-display",
+  display: "swap",
+});
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+
+export const metadata: Metadata = {
+  title: {
+    default: "Africa CII — Creative Industries Intelligence",
+    template: "%s · Africa CII",
+  },
+  description:
+    "Verified, decision-ready intelligence on Africa's games, esports and animation economy — country, market, studio and game level.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable}`}>
+      <body className="min-h-screen font-sans antialiased">
+        <MetricDrawerProvider>
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
+              <Topbar />
+              <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 sm:px-6 lg:px-8">
+                {children}
+              </main>
+              <footer className="border-t border-line px-6 py-6 text-xs text-slate-500">
+                <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3">
+                  <span>
+                    Africa Creative Industries Intelligence · Phase 1 MVP · Data is
+                    verified & source-traced. Estimates are labelled.
+                  </span>
+                  <span className="figure">ISO 3166-1 · World Bank WDI (CC BY-4.0)</span>
+                </div>
+              </footer>
+            </div>
+          </div>
+        </MetricDrawerProvider>
+      </body>
+    </html>
+  );
+}
