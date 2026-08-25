@@ -17,10 +17,12 @@ export function DemographicsTabs({
   countries,
   occupation,
   settlement,
+  education,
 }: {
   countries: DemoCountry[];
   occupation?: GamerCategory;
   settlement?: GamerCategory;
+  education?: GamerCategory;
 }) {
   const [tab, setTab] = useState<"gamers" | "population">("gamers");
 
@@ -58,14 +60,16 @@ export function DemographicsTabs({
         <>
           <div className="rounded-lg border border-line bg-ink-850/60 p-4 text-sm text-slate-300">
             <span className="font-semibold text-white">Whose numbers these are. </span>
-            Every figure below was published by a named researcher — GeoPoll, PAGG, Newzoo or
-            Carry1st — and is reported here with their sample size, markets, date and a link back.
-            This platform has run no player survey of its own, so nothing here is presented as our
-            primary research. Where a category has no published free figure, it says{" "}
-            <span className="text-slate-400">not published</span> and names the kind of source that
-            would fill it, rather than being estimated into existence.
+            Every figure below comes from a named publisher — GeoPoll, PAGG, Newzoo and Carry1st for
+            the player surveys; the World Bank, ILO and UNESCO for the official statistics — and is
+            reported here with its sample, markets, date and a link back. This platform has run no
+            player survey of its own, so nothing here is presented as our primary research. Cards
+            marked <span className="text-warn-400">partial</span> carry real data that describes the{" "}
+            <span className="text-slate-200">population</span> rather than gamers specifically; each
+            one says so, and names the source that would close the gap, rather than being estimated
+            into existence.
           </div>
-          <GamerDemographics occupation={occupation} settlement={settlement} />
+          <GamerDemographics occupation={occupation} settlement={settlement} education={education} />
         </>
       ) : (
         <DemographicsView countries={countries} />

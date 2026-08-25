@@ -73,6 +73,18 @@ export const SURVEY_SOURCES: Record<string, SurveySource> = {
       "Urban population (SP.URB.TOTL), urban growth (SP.URB.GROW) and access to electricity split urban (EG.ELC.ACCS.UR.ZS) / rural (EG.ELC.ACCS.RU.ZS), compiled by the World Bank from national censuses, household surveys and UN World Urbanization Prospects. Aggregated here with each electrification rate weighted by the population it describes — urban rates by urban population, rural rates by rural population — never by total population.",
     licence: "CC BY-4.0",
   },
+  worldbankEdu: {
+    id: "worldbankEdu",
+    name: "World Development Indicators — educational attainment & literacy",
+    publisher: "World Bank / UNESCO Institute for Statistics",
+    sampleSize: "National censuses and household surveys, 49 of 54 African countries with a complete attainment ladder",
+    markets: ["All 54 African countries"],
+    published: "2025",
+    url: "https://data.worldbank.org/indicator/SE.TER.CUAT.BA.ZS",
+    methodology:
+      "Educational attainment of the population aged 25+ (SE.PRM.CUAT.ZS, SE.SEC.CUAT.LO.ZS, SE.SEC.CUAT.UP.ZS, SE.TER.CUAT.BA.ZS), compiled by the UNESCO Institute for Statistics from censuses and household surveys. The published series are CUMULATIVE — each reads “at least completed X” — so they are differenced here into mutually exclusive buckets that sum to 100%, rather than charted side by side, which would count every graduate again at every rung below their own. Continental figures are weighted by the population aged 25+ (derived from the age bands), the population the indicators describe, not by total population.",
+    licence: "CC BY-4.0",
+  },
   newzooCarry1st: {
     id: "newzooCarry1st",
     name: "Africa Games Market Report",

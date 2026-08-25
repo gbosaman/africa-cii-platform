@@ -6,6 +6,7 @@ import { DemographicsTabs } from "@/components/demographics/DemographicsTabs";
 import { SectionHeader } from "@/components/ui/primitives";
 import { continentalOccupation } from "@/lib/scoring/occupation";
 import { continentalSettlement, widestElectricityGaps } from "@/lib/scoring/settlement";
+import { continentalEducation, topByDegree } from "@/lib/scoring/education";
 import type { GamerCategory } from "@/lib/data/gamer-demographics";
 
 export const revalidate = 86400;
@@ -176,6 +177,93 @@ export default async function DemographicsPage() {
       "A survey cut by settlement type with rural weighting, or telemetry geolocated at a finer grain than country level.",
   };
 
+  // Educational attainment. The World Bank ladder is CUMULATIVE ("at least
+  // completed X"), so it is differenced into exclusive buckets, and weighted by
+  // the 25+ population the indicators actually describe.
+  const edu = continentalEducation(snap.metrics);
+  const degreeLeaders = topByDegree(snap.metrics, 4);
+
+  const education: GamerCategory = {
+    id: "education",
+    title: "Education level",
+    question: "What schooling has the adult population completed?",
+    icon: "book",
+    accent: "blue",
+    provenance: "partial",
+    headline: pct(edu.bachelorPlus) === null ? null : `${pct(edu.bachelorPlus)}%`,
+    headlineLabel: "Hold a degree, share of 25+ population",
+    stats: [
+      {
+        label: "Did not complete primary school",
+        value: pct(edu.lessThanPrimary),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note: "The single largest group. A floor on the addressable market for any text-heavy game or tool.",
+      },
+      {
+        label: "Completed primary, no lower secondary",
+        value: pct(edu.primaryOnly),
+        unit: "%",
+        sourceId: "worldbankEdu",
+      },
+      {
+        label: "Completed lower secondary, no upper secondary",
+        value: pct(edu.lowerSecondaryOnly),
+        unit: "%",
+        sourceId: "worldbankEdu",
+      },
+      {
+        label: "Completed upper secondary, no degree",
+        value: pct(edu.upperSecondaryOnly),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note: "Includes post-secondary non-tertiary and short-cycle tertiary — the diploma and technical-certificate route most vocational art and code training runs through.",
+      },
+      {
+        label: "Hold a bachelor's degree or higher",
+        value: pct(edu.bachelorPlus),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note: "The closest free read on a formally-credentialled talent pool.",
+      },
+      {
+        label: "Youth literacy (15–24)",
+        value: pct(edu.youthLiteracy),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note: "The pipeline, not the stock — and the more relevant figure for an audience that skews young.",
+      },
+      {
+        label: "Adult literacy (15+)",
+        value: pct(edu.adultLiteracy),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note:
+          edu.youthLiteracy !== null && edu.adultLiteracy !== null
+            ? `Youth literacy runs ${(edu.youthLiteracy - edu.adultLiteracy).toFixed(1)}pp ahead of the adult rate, which is the schooling expansion showing up in the data.`
+            : undefined,
+      },
+      {
+        label: "Government education spending, % of GDP",
+        value: pct(edu.eduSpendGdp),
+        unit: "%",
+        sourceId: "worldbankEdu",
+        note: "Weighted by GDP, since the indicator is itself a share of GDP.",
+      },
+      ...degreeLeaders.map((d) => ({
+        label: `Highest degree share — ${d.name}`,
+        value: pct(d.bachelorPlus),
+        unit: "%" as const,
+        sourceId: "worldbankEdu",
+        note: `Against ${pct(d.lessThanPrimary) ?? "N/A"}% who did not complete primary — attainment is polarised, not uniformly low.`,
+      })),
+    ],
+    gap:
+      `These are POPULATION figures, not gamers, and they describe the 25+ population — while African gamers skew 16–35, a younger and better-schooled cohort, so their mix is almost certainly higher than shown. The five attainment buckets are differenced from a cumulative "at least completed X" ladder and cover ${edu.countriesInBuckets} of 54 countries with a complete ladder.`,
+    wouldNeed:
+      "A survey crossing gaming participation with educational attainment. No free source publishes one for African markets.",
+  };
+
   return (
     <div className="view-enter space-y-6">
       <SectionHeader
@@ -190,7 +278,7 @@ Two datasets, deliberately kept apart. <span className="text-slate-300">Gamer de
         statistics about everyone. Every figure carries its source, and every gap is labelled.
       </p>
 
-      <DemographicsTabs countries={countries} occupation={occupation} settlement={settlement} />
+      <DemographicsTabs countries={countries} occupation={occupation} settlement={settlement} education={education} />
     </div>
   );
 }

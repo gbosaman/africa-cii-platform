@@ -27,11 +27,12 @@ interface WbRow {
   indicator: { id: string; value: string };
 }
 
-/** Raw fetch of one indicator, most-recent-non-empty per country. */
-async function fetchIndicator(
-  indicator: string,
-): Promise<Map<string, { value: number; year: number }>> {
-  const url = `${BASE}/country/all/indicator/${indicator}?format=json&mrnev=1&per_page=500`;
+interface WbMeta {
+  pages?: number;
+  total?: number;
+}
+
+async function fetchPage(url: string, indicator: string): Promise<{ meta: WbMeta; rows: WbRow[] }> {
   const res = await fetch(url, {
     // Revalidate daily; World Bank publishes at most annually.
     next: { revalidate: 60 * 60 * 24 },
@@ -40,15 +41,46 @@ async function fetchIndicator(
   if (!res.ok) {
     throw new Error(`World Bank ${indicator} → HTTP ${res.status}`);
   }
-  const json = (await res.json()) as [unknown, WbRow[] | null];
-  const rows = Array.isArray(json) ? json[1] : null;
+  const json = (await res.json()) as [WbMeta | null, WbRow[] | null];
+  if (!Array.isArray(json)) return { meta: {}, rows: [] };
+  return { meta: json[0] ?? {}, rows: json[1] ?? [] };
+}
+
+/**
+ * Raw fetch of one indicator, most-recent-non-empty per country.
+ *
+ * A handful of indicators SILENTLY IGNORE `mrnev=1` and return the entire time
+ * series instead of one row per country. `per_page=500` then truncates at page
+ * one, which never reaches most African ISO3 codes — so the indicator resolves
+ * to N/A for all 54 countries even though the data exists. That is the worst
+ * possible failure here: it looks exactly like "no data published" and is
+ * indistinguishable from a genuine gap unless you check the row count.
+ *
+ * A multi-page response is the tell. When we see one, re-request the whole
+ * series in a single page and reduce it ourselves.
+ */
+async function fetchIndicator(
+  indicator: string,
+): Promise<Map<string, { value: number; year: number }>> {
+  const base = `${BASE}/country/all/indicator/${indicator}?format=json`;
+  let { meta, rows } = await fetchPage(`${base}&mrnev=1&per_page=500`, indicator);
+
+  if ((meta.pages ?? 1) > 1) {
+    ({ rows } = await fetchPage(`${base}&per_page=25000`, indicator));
+  }
+
+  // Reduce to the most-recent non-empty observation per country. This is a
+  // no-op on the mrnev path (one row per country) and does the real work on
+  // the fallback path.
   const out = new Map<string, { value: number; year: number }>();
-  if (!rows) return out;
   for (const row of rows) {
     const iso3 = WB_ALIAS[row.countryiso3code] ?? row.countryiso3code;
     if (!AFRICAN_ISO3.has(iso3)) continue;
     if (row.value === null || row.value === undefined) continue;
-    out.set(iso3, { value: row.value, year: Number(row.date) });
+    const year = Number(row.date);
+    if (!Number.isFinite(year)) continue;
+    const prev = out.get(iso3);
+    if (!prev || year > prev.year) out.set(iso3, { value: row.value, year });
   }
   return out;
 }

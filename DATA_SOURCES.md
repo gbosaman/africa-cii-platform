@@ -275,7 +275,7 @@ lie coming from us.
 | Age distribution | `SP.POP.0014.TO.ZS`, `SP.POP.1564.TO.ZS`, `SP.POP.65UP.TO.ZS` |
 | Gender | `SP.POP.TOTL.FE.ZS`, `SL.TLF.CACT.FE.ZS` |
 | Income | `NY.GNP.PCAP.CD`, `SI.POV.GINI` |
-| Education | `SE.ADT.LITR.ZS`, `SE.SEC.ENRR`, `SE.TER.ENRR` |
+| Education | `SE.ADT.LITR.ZS`, `SE.SEC.ENRR`, `SE.TER.ENRR`, `SE.PRM.CUAT.ZS`, `SE.SEC.CUAT.LO.ZS`, `SE.SEC.CUAT.UP.ZS`, `SE.TER.CUAT.BA.ZS`, `SE.ADT.1524.LT.ZS`, `SE.XPD.TOTL.GD.ZS` |
 | Occupation / employment | `SL.TLF.CACT.ZS`, `SL.UEM.TOTL.ZS`, `SL.UEM.1524.ZS` |
 | Device ownership | `IT.NET.USER.ZS`, `IT.CEL.SETS.P2`, `EG.ELC.ACCS.ZS` |
 | Urban vs rural | `SP.URB.TOTL.IN.ZS`, `SP.RUR.TOTL.ZS`, `SP.URB.TOTL`, `SP.URB.GROW`, `EG.ELC.ACCS.UR.ZS`, `EG.ELC.ACCS.RU.ZS` |
@@ -381,3 +381,69 @@ almost entirely unreachable — and a national "electricity access" average conc
 splits African gamers by settlement type, and mobile-survey recruitment systematically under-reaches
 rural respondents — so even a commissioned study would need careful rural weighting before its
 urban/rural split could be trusted. The card is marked *partial* for that reason, not *published*.
+
+### Education level — a cumulative ladder and the wrong denominator
+
+The education card is built from the UNESCO/World Bank attainment series for the population aged
+25+, all keyless and CC BY-4.0, verified against the live API before use (51/54 coverage on the
+secondary rungs, 49/54 on the degree rung, median observation year 2022):
+
+| Indicator | Rung |
+|---|---|
+| `SE.PRM.CUAT.ZS` | At least completed primary |
+| `SE.SEC.CUAT.LO.ZS` | At least completed lower secondary |
+| `SE.SEC.CUAT.UP.ZS` | At least completed upper secondary |
+| `SE.TER.CUAT.BA.ZS` | At least a bachelor's degree |
+| `SE.ADT.1524.LT.ZS` | Youth literacy, 15–24 |
+| `SE.XPD.TOTL.GD.ZS` | Government education spending, % of GDP |
+
+**Trap one: the ladder is cumulative.** Every series reads *"at least completed X"*, so the rungs
+are nested — `primary+ ⊇ lower secondary+ ⊇ upper secondary+ ⊇ bachelor+`. Charting them side by
+side counts every graduate again at every rung below their own; on Nigeria the raw series total
+160%. They are therefore differenced into mutually exclusive buckets, clamped at zero because rungs
+drawn from different survey years are not guaranteed locally monotone.
+
+**Trap two: the denominator is the 25+ population, not everyone.** Africa's 25+ share runs from
+33% (Niger) to 63% (Tunisia), so a continental average weighted by *total* population systematically
+over-weights the youngest — and lowest-attainment — countries. Measured on live data that shifts
+"at least primary" by 1.4pp. We derive the 25+ headcount from the age bands (`SP.POP.1519.*.5Y`,
+`SP.POP.2024.*.5Y`, `SP.POP.0014.TO.ZS`, `SP.POP.TOTL.FE.ZS`) and weight by that instead.
+
+A third, subtler issue: averaging each bucket over whichever countries happen to report it produces
+five averages over five different denominators, which then sum to 100.5 rather than 100. The
+continental split therefore uses **complete cases only** — the 49 countries with a full ladder — and
+reports that count on the card. `tests/education.test.ts` asserts the differencing, the clamping,
+the 25+ weighting and the sum.
+
+**Africa, weighted by the 25+ population:** did not complete primary **44.1%** · primary only 16.1%
+· lower secondary only 12.5% · upper secondary but no degree 19.4% · **degree 7.9%**. Sum: 100.0%.
+
+Two findings worth naming. **Youth literacy (82.5%) runs 13.6pp ahead of adult literacy (68.9%)** —
+schooling expansion showing up in the data, and the youth figure is the relevant one for an audience
+that skews young. And attainment is **polarised, not uniformly low**: Egypt 18.1% degree-holding
+against 30.8% who did not finish primary; Comoros 14.1% against 53.0%.
+
+**The limit stated on the card:** these are population figures for the 25+, while African gamers
+skew 16–35 — a younger, better-schooled cohort — so their mix is almost certainly higher than shown.
+Marked *partial*, not *published*.
+
+### A silent-truncation bug in the World Bank adapter
+
+Found while verifying the education indicators, and worth recording because the failure mode is
+invisible.
+
+A handful of WDI indicators **silently ignore `mrnev=1`** (most-recent-non-empty) and return their
+entire time series instead of one row per country. The adapter requested a fixed `per_page=500`, so
+the response was truncated at page one — which, for a 17,490-row series sorted by economy, never
+reaches most African ISO3 codes. The indicator then resolved to N/A for all 54 countries.
+
+`SP.POP.TOTL.FE.ZS` was doing exactly this in production: **0/54 coverage against data that exists**,
+meaning the Gender card in population demographics had been rendering N/A for every country. That is
+the worst failure this platform can have — it is indistinguishable from a genuine "not published"
+gap unless you check the row count.
+
+The fix: a multi-page response is the tell, so the adapter now re-requests the full series in a
+single page and reduces to the most-recent non-empty observation per country itself. An audit of all
+37 indicators found this one affected; coverage went 0/54 → 54/54.
+`tests/worldbank-pagination.test.ts` covers the fallback, the no-op fast path, and the rule that a
+genuinely absent value stays null rather than becoming zero.

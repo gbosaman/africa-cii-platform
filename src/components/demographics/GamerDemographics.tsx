@@ -45,15 +45,21 @@ const BAR_TONE: Record<string, string> = {
 export function GamerDemographics({
   occupation,
   settlement,
+  education,
 }: {
   occupation?: GamerCategory;
   settlement?: GamerCategory;
+  education?: GamerCategory;
 }) {
   const [open, setOpen] = useState<GamerCategory | null>(null);
 
   // Occupation and urban/rural are computed server-side from live World Bank
   // series, so they replace their static placeholders when available.
-  const overrides: Record<string, GamerCategory | undefined> = { occupation, urban: settlement };
+  const overrides: Record<string, GamerCategory | undefined> = {
+    occupation,
+    urban: settlement,
+    education,
+  };
   const categories = GAMER_CATEGORIES.map((c) => overrides[c.id] ?? c);
 
   useEffect(() => {
