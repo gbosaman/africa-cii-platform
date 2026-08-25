@@ -447,3 +447,47 @@ single page and reduces to the most-recent non-empty observation per country its
 37 indicators found this one affected; coverage went 0/54 → 54/54.
 `tests/worldbank-pagination.test.ts` covers the fallback, the no-op fast path, and the rule that a
 genuinely absent value stays null rather than becoming zero.
+
+### Charts — when a pie is a lie
+
+The demographics cards render as bar and pie charts. Which one is not a styling choice.
+
+**A pie asserts a partition.** Its slices claim to be mutually exclusive and to sum to one whole.
+Drawing overlapping survey percentages as a pie claims a relationship the data does not have — a
+respondent who has bought a game can also prefer free games and still name cost as a barrier, so
+those slices would overlap and the circle would be false. The income figures sum to **256%**.
+
+So the rule applied across the page:
+
+| Category | Chart | Why |
+|---|---|---|
+| Age distribution | Pie | Population age bands partition to 100% |
+| Gender | Pie | Female/male partition to 100% |
+| Income bracket | **Bar** | Overlapping survey responses, sum 256% |
+| Education level | Pie + bar | Attainment partitions; literacy and spending do not |
+| Occupation | Pie + bar | Four buckets partition; youth NEET has another denominator |
+| Daily gaming hours | **Bar** | Nested thresholds — everyone in "3+ hours" is inside "1+ hour" |
+| Urban vs rural | Bar | Includes percentage-point gaps, which are not shares |
+| Device ownership | Bar | Overlapping platform ownership |
+
+This is enforced in three places: `PieChart` refuses to draw and explains itself if its values miss
+100% by more than 1.5pp; every pie carries a caption stating what the shape does and does not claim;
+and `tests/demographics-charts.test.ts` asserts the partitions sum, that the overlapping series are
+declared as bars, and that the income series really does exceed 100%.
+
+**Age and gender needed data before they could be charted at all.** Both cards previously held only
+qualitative statements — "mostly 16–35", "largely male" — with no numeric split published anywhere
+free. Those cannot be charted without inventing the numbers. What is charted instead is the
+**population** structure they are drawn from (`SP.POP.0014.TO.ZS`, the 15–24 bands, `SP.POP.65UP.TO.ZS`,
+`SP.POP.TOTL.FE.ZS`), weighted by country population, with the 25–64 band taken as the residual so
+the four bands always partition exactly. Both captions say in as many words that this is the pool of
+people, not a measured split of players — and the qualitative rows remain on the card as **N/A**
+rather than being dissolved into slices. Africa: under-15 38.8% · 15–24 19.7% · 25–64 37.8% · 65+
+3.7%. Population sex split 50.1% female — near-even, while the gamer split is reported male-skewed
+by an unpublished margin, which is exactly why the two must not be read as one.
+
+**A follow-up fix to the truncation fallback.** Scoping it to `country/all` pulled 5.6MB, which
+exceeds the Next data-cache ceiling of 2MB — so the response was never cached and refetched on every
+single request, which is both slow and rude to a free API. The fallback now scopes to the 54 African
+ISO3 codes: 0.81MB, one page, still 54/54 coverage, and no date bound, so an indicator whose most
+recent observation is old is still found.

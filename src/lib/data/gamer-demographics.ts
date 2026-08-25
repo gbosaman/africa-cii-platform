@@ -109,6 +109,32 @@ export interface GamerStat {
   note?: string;
 }
 
+/**
+ * How a category should be drawn.
+ *
+ * "pie" is permitted ONLY where the slices are mutually exclusive and sum to
+ * 100. Overlapping survey percentages — where one respondent can appear in
+ * several rows — must use "bar", because a pie would assert a partition that
+ * does not exist. The PieChart component enforces this at render time and
+ * tests/demographics-charts.test.ts enforces it on the data.
+ */
+export interface ChartSpec {
+  kind: "pie" | "bar";
+  /** Percentages. For a pie these must sum to 100. */
+  series: { label: string; value: number | null; note?: string; muted?: boolean }[];
+  /** Shown above the chart — says what the shape does and does not claim. */
+  caption?: string;
+  /** Big number in the middle of a donut. */
+  centreValue?: string;
+  centreLabel?: string;
+  /** Optional second chart for figures that are not part of the partition. */
+  secondary?: {
+    kind: "bar";
+    title: string;
+    series: { label: string; value: number | null; note?: string; muted?: boolean }[];
+  };
+}
+
 export interface GamerCategory {
   id: string;
   title: string;
@@ -124,6 +150,8 @@ export interface GamerCategory {
   gap?: string;
   /** What kind of source would close the gap. */
   wouldNeed?: string;
+  /** Bar or pie representation of the figures above. */
+  chart?: ChartSpec;
 }
 
 export const GAMER_CATEGORIES: GamerCategory[] = [
@@ -197,6 +225,19 @@ export const GAMER_CATEGORIES: GamerCategory[] = [
     ],
     gap: "Spending behaviour is published; household income brackets for gamers are not.",
     wouldNeed: "A survey cut crossing gaming participation with household income deciles.",
+    chart: {
+      kind: "bar",
+      caption:
+        "Overlapping responses, not a breakdown of one whole — a player who has bought something can also prefer free games and still name cost as a barrier. These are bars for that reason; a pie would claim they partition the audience.",
+      series: [
+        { label: "Have made a gaming-related purchase", value: 63 },
+        { label: "Spend $2–$5 per month", value: 29 },
+        { label: "Prefer free games", value: 47 },
+        { label: "Barrier: lack of funds", value: 44 },
+        { label: "Barrier: data-bundle cost", value: 42 },
+        { label: "Barrier: hardware cost", value: 31 },
+      ],
+    },
   },
   {
     id: "education",
@@ -254,6 +295,29 @@ export const GAMER_CATEGORIES: GamerCategory[] = [
       { label: "Play for fun", value: 73, unit: "%", sourceId: "geopoll2024" },
       { label: "Play for stress relief", value: 64, unit: "%", sourceId: "geopoll2024" },
     ],
+    chart: {
+      kind: "bar",
+      caption:
+        "Nested and overlapping thresholds, not exclusive bands: everyone in the 3+ hour bar is also inside the 1+ hour bar. The published data gives thresholds, not a distribution, so no pie is possible without inventing the bands between them.",
+      series: [
+        { label: "Play more than 1 hour daily", value: 75 },
+        { label: "Play 3+ hours daily", value: 32 },
+        {
+          label: "Kenya: at least 1 hour daily",
+          value: 78,
+          muted: true,
+          note: "One market only — not comparable with the continental rows above.",
+        },
+      ],
+      secondary: {
+        kind: "bar",
+        title: "Why they play",
+        series: [
+          { label: "For fun", value: 73 },
+          { label: "For stress relief", value: 64 },
+        ],
+      },
+    },
   },
   {
     id: "device",

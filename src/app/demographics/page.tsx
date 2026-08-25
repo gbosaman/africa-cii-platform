@@ -7,6 +7,10 @@ import { SectionHeader } from "@/components/ui/primitives";
 import { continentalOccupation } from "@/lib/scoring/occupation";
 import { continentalSettlement, widestElectricityGaps } from "@/lib/scoring/settlement";
 import { continentalEducation, topByDegree } from "@/lib/scoring/education";
+import {
+  continentalAgeStructure,
+  continentalSexStructure,
+} from "@/lib/scoring/population-structure";
 import type { GamerCategory } from "@/lib/data/gamer-demographics";
 
 export const revalidate = 86400;
@@ -107,6 +111,31 @@ export default async function DemographicsPage() {
       "These are working-age POPULATION figures, not gamers. No free survey publishes an occupation split for African gamers specifically — and since gamers skew 16–35 and urban, their mix almost certainly differs from the population average shown here.",
     wouldNeed:
       "A survey crossing gaming participation with employment status, or first-party publisher telemetry with registration data.",
+    chart: {
+      kind: "pie",
+      caption:
+        "A true partition: every person of working age falls in exactly one slice, and the four sum to 100% of the 15+ population.",
+      centreValue: pct(occ.selfEmployed) === null ? undefined : `${pct(occ.selfEmployed)}%`,
+      centreLabel: "self-employed",
+      series: [
+        { label: "Self-employed", value: pct(occ.selfEmployed) },
+        { label: "Not in labour force (incl. students)", value: pct(occ.notInLabourForce) },
+        { label: "Wage or salaried employment", value: pct(occ.wageEmployed) },
+        { label: "Unemployed, seeking work", value: pct(occ.unemployed) },
+      ],
+      secondary: {
+        kind: "bar",
+        title: "Measured against a different denominator",
+        series: [
+          {
+            label: "Youth (15–24) not in employment, education or training",
+            value: pct(occ.youthNeet),
+            muted: true,
+            note: "Share of 15–24s, not of the 15+ population — which is why it sits outside the pie.",
+          },
+        ],
+      },
+    },
   };
 
   // Urban / rural, with the electrification gap that decides whether rural
@@ -262,6 +291,124 @@ export default async function DemographicsPage() {
       `These are POPULATION figures, not gamers, and they describe the 25+ population — while African gamers skew 16–35, a younger and better-schooled cohort, so their mix is almost certainly higher than shown. The five attainment buckets are differenced from a cumulative "at least completed X" ladder and cover ${edu.countriesInBuckets} of 54 countries with a complete ladder.`,
     wouldNeed:
       "A survey crossing gaming participation with educational attainment. No free source publishes one for African markets.",
+    chart: {
+      kind: "pie",
+      caption: `A true partition, differenced from the cumulative “at least completed X” ladder so nobody is counted twice: the five slices sum to 100% of the 25+ population across the ${edu.countriesInBuckets} countries with a complete ladder.`,
+      centreValue: pct(edu.bachelorPlus) === null ? undefined : `${pct(edu.bachelorPlus)}%`,
+      centreLabel: "hold a degree",
+      series: [
+        { label: "Did not complete primary", value: pct(edu.lessThanPrimary) },
+        { label: "Primary only", value: pct(edu.primaryOnly) },
+        { label: "Lower secondary only", value: pct(edu.lowerSecondaryOnly) },
+        { label: "Upper secondary, no degree", value: pct(edu.upperSecondaryOnly) },
+        { label: "Bachelor's degree or higher", value: pct(edu.bachelorPlus) },
+      ],
+      secondary: {
+        kind: "bar",
+        title: "Literacy and investment (not part of the partition)",
+        series: [
+          { label: "Youth literacy (15–24)", value: pct(edu.youthLiteracy) },
+          { label: "Adult literacy (15+)", value: pct(edu.adultLiteracy) },
+          {
+            label: "Government education spending, % of GDP",
+            value: pct(edu.eduSpendGdp),
+            muted: true,
+            note: "A share of GDP, not of people — shown on the same axis only for compactness.",
+          },
+        ],
+      },
+    },
+  };
+
+  // Age and gender: no free source publishes a numeric split for African
+  // GAMERS, only the qualitative "mostly 16-35" and "largely male". What can be
+  // charted is the population they are drawn from — a different quantity, and
+  // both cards say so rather than passing it off as a gamer statistic.
+  const age = continentalAgeStructure(snap.metrics);
+  const sex = continentalSexStructure(snap.metrics);
+
+  const ageCategory: GamerCategory = {
+    id: "age",
+    title: "Age distribution",
+    question: "How old are African gamers?",
+    icon: "users",
+    accent: "emerald",
+    provenance: "partial",
+    headline: pct(age.age15to24) === null ? null : `${pct(age.age15to24)}%`,
+    headlineLabel: "Population aged 15–24",
+    stats: [
+      {
+        label: "Under 15",
+        value: pct(age.under15),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: "Below the age most published gaming research samples.",
+      },
+      { label: "15–24", value: pct(age.age15to24), unit: "%", sourceId: "worldbankWdi" },
+      { label: "25–64", value: pct(age.age25to64), unit: "%", sourceId: "worldbankWdi" },
+      { label: "65 and over", value: pct(age.age65plus), unit: "%", sourceId: "worldbankWdi" },
+      {
+        label: "Majority of African gamers fall in the 16–35 band",
+        value: null,
+        unit: "%",
+        sourceId: "newzooCarry1st",
+        note: "Published as a band, not as a numeric split by bracket. It straddles the 15–24 and 25–64 rows above and cannot be resolved into them without inventing the boundary.",
+      },
+    ],
+    gap:
+      "The pie is POPULATION age structure, not gamers. No free source publishes an age-bracket split for African gamers — only the qualitative 16–35 band, which straddles two of these slices and cannot be split between them without inventing numbers.",
+    wouldNeed:
+      "A licensed Newzoo or GeoPoll data cut, or first-party telemetry from a publisher such as Carry1st or Maliyo.",
+    chart: {
+      kind: "pie",
+      caption:
+        "Population age structure — a true partition of everyone alive, weighted by country population. This is the pool gamers are drawn from, NOT a measured age split of gamers themselves.",
+      centreValue: pct(age.age15to24) === null ? undefined : `${pct(age.age15to24)}%`,
+      centreLabel: "aged 15–24",
+      series: [
+        { label: "Under 15", value: pct(age.under15) },
+        { label: "15–24", value: pct(age.age15to24) },
+        { label: "25–64", value: pct(age.age25to64) },
+        { label: "65 and over", value: pct(age.age65plus) },
+      ],
+    },
+  };
+
+  const genderCategory: GamerCategory = {
+    id: "gender",
+    title: "Gender",
+    question: "What is the gender split among African gamers?",
+    icon: "users",
+    accent: "violet",
+    provenance: "partial",
+    headline: pct(sex.female) === null ? null : `${pct(sex.female)}%`,
+    headlineLabel: "Female share of population",
+    stats: [
+      { label: "Female", value: pct(sex.female), unit: "%", sourceId: "worldbankWdi" },
+      { label: "Male", value: pct(sex.male), unit: "%", sourceId: "worldbankWdi" },
+      {
+        label: "Gamers described as “largely but not entirely male”",
+        value: null,
+        unit: "%",
+        sourceId: "newzooCarry1st",
+        note: "Published as a direction of skew. No numeric male/female split for African gamers appears in any free source.",
+      },
+    ],
+    gap:
+      "The pie is the POPULATION sex split, which is near-even. The gamer split is not — it is reported as male-skewed, but no free source puts a number on it, so the size of that skew is unknown. Reading the population figure as a gamer figure would be exactly the error this card exists to prevent.",
+    wouldNeed:
+      "The full Newzoo × Carry1st report or a GeoPoll data cut. Global comparators exist but do not transfer to African markets.",
+    chart: {
+      kind: "pie",
+      caption:
+        "Population sex split, weighted by country population — near-even, and deliberately NOT presented as the gamer split, which is reported as male-skewed by an unpublished margin.",
+      centreValue: pct(sex.female) === null ? undefined : `${pct(sex.female)}%`,
+      centreLabel: "female",
+      series: [
+        { label: "Female", value: pct(sex.female) },
+        { label: "Male", value: pct(sex.male) },
+      ],
+    },
   };
 
   return (
@@ -278,7 +425,7 @@ Two datasets, deliberately kept apart. <span className="text-slate-300">Gamer de
         statistics about everyone. Every figure carries its source, and every gap is labelled.
       </p>
 
-      <DemographicsTabs countries={countries} occupation={occupation} settlement={settlement} education={education} />
+      <DemographicsTabs countries={countries} occupation={occupation} settlement={settlement} education={education} age={ageCategory} gender={genderCategory} />
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Panel, SectionHeader, Pill } from "@/components/ui/primitives";
 import { Icon } from "@/components/ui/Icon";
 import { fmtNumber } from "@/lib/format";
+import { PieChart, MiniDonut, CHART_PALETTE } from "@/components/charts/PieChart";
+import { BarChart } from "@/components/charts/BarChart";
 import {
   GAMER_CATEGORIES,
   MARKET_TOTALS,
@@ -35,6 +37,20 @@ const ICON_TONE: Record<string, string> = {
   orange: "bg-[var(--orange-soft)] text-warn-400",
 };
 
+const ACCENT_HEX: Record<string, string> = {
+  emerald: "#22c55e",
+  blue: "#38bdf8",
+  violet: "#a855f7",
+  orange: "#f59e0b",
+};
+
+/** Drops nulls: a pie cannot represent an unknown, so it must not try. */
+function pieSlices(series: { label: string; value: number | null }[]) {
+  return series
+    .filter((s): s is { label: string; value: number } => s.value !== null)
+    .map((s) => ({ label: s.label, value: s.value }));
+}
+
 const BAR_TONE: Record<string, string> = {
   emerald: "from-accent-600 to-accent-400",
   blue: "from-info-600 to-info-400",
@@ -46,10 +62,14 @@ export function GamerDemographics({
   occupation,
   settlement,
   education,
+  age,
+  gender,
 }: {
   occupation?: GamerCategory;
   settlement?: GamerCategory;
   education?: GamerCategory;
+  age?: GamerCategory;
+  gender?: GamerCategory;
 }) {
   const [open, setOpen] = useState<GamerCategory | null>(null);
 
@@ -59,6 +79,8 @@ export function GamerDemographics({
     occupation,
     urban: settlement,
     education,
+    age,
+    gender,
   };
   const categories = GAMER_CATEGORIES.map((c) => overrides[c.id] ?? c);
 
@@ -125,22 +147,9 @@ export function GamerDemographics({
             <p className="mt-1 text-[12.5px] font-medium text-slate-400">{c.headlineLabel}</p>
             <p className="mt-2 text-sm font-semibold text-slate-200">{c.title}</p>
 
-            {/* Miniature bars so the card previews the shape of the data */}
-            {c.stats.filter((s) => s.value !== null && isPctLike(s.unit)).length > 0 && (
-              <div className="mt-3 space-y-1">
-                {c.stats
-                  .filter((s) => s.value !== null && isPctLike(s.unit))
-                  .slice(0, 3)
-                  .map((s) => (
-                    <div key={s.label} className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700">
-                      <div
-                        className={`h-full rounded-full bg-gradient-to-r ${BAR_TONE[c.accent]}`}
-                        style={{ width: `${s.value}%` }}
-                      />
-                    </div>
-                  ))}
-              </div>
-            )}
+            {/* Preview the shape of the data: a donut for partitions, bars
+                for everything else. */}
+            <CardPreview category={c} />
 
             <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-accent-400">
               Detail <Icon name="arrow" className="h-3 w-3" />
@@ -150,6 +159,51 @@ export function GamerDemographics({
       </div>
 
       {open && <DrillDown category={open} onClose={() => setOpen(null)} />}
+    </div>
+  );
+}
+
+function CardPreview({ category }: { category: GamerCategory }) {
+  const chart = category.chart;
+
+  if (chart?.kind === "pie") {
+    const slices = pieSlices(chart.series);
+    if (slices.length > 0) {
+      return (
+        <div className="mt-3 flex items-center gap-3">
+          <MiniDonut slices={slices} />
+          <ul className="min-w-0 flex-1 space-y-0.5">
+            {slices.slice(0, 3).map((s, i) => (
+              <li key={s.label} className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                <span
+                  aria-hidden
+                  className="h-1.5 w-1.5 shrink-0 rounded-full"
+                  style={{ background: CHART_PALETTE[i % CHART_PALETTE.length] }}
+                />
+                <span className="truncate">{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+  }
+
+  const bars = (chart?.series ?? category.stats.filter((s) => isPctLike(s.unit)))
+    .filter((s) => s.value !== null)
+    .slice(0, 3);
+  if (bars.length === 0) return null;
+
+  return (
+    <div className="mt-3 space-y-1">
+      {bars.map((s) => (
+        <div key={s.label} className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700">
+          <div
+            className={`h-full rounded-full bg-gradient-to-r ${BAR_TONE[category.accent]}`}
+            style={{ width: `${Math.min(100, s.value!)}%` }}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -184,6 +238,37 @@ function DrillDown({ category, onClose }: { category: GamerCategory; onClose: ()
             {PROV_LABEL[category.provenance]}
           </span>
 
+          {/* The chart. Bars and pies are not interchangeable — see ChartSpec. */}
+          {category.chart && (
+            <div className="space-y-3">
+              {category.chart.caption && (
+                <p className="text-[11.5px] leading-relaxed text-slate-400">
+                  {category.chart.caption}
+                </p>
+              )}
+              <div className="panel-tight p-4">
+                {category.chart.kind === "pie" ? (
+                  <PieChart
+                    slices={pieSlices(category.chart.series)}
+                    centreValue={category.chart.centreValue}
+                    centreLabel={category.chart.centreLabel}
+                  />
+                ) : (
+                  <BarChart bars={category.chart.series} color={ACCENT_HEX[category.accent]} />
+                )}
+              </div>
+              {category.chart.secondary && (
+                <div className="panel-tight p-4">
+                  <p className="eyebrow mb-3">{category.chart.secondary.title}</p>
+                  <BarChart
+                    bars={category.chart.secondary.series}
+                    color={ACCENT_HEX[category.accent]}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* The numbers */}
           {category.stats.length > 0 ? (
             <div className="space-y-3">
@@ -201,7 +286,7 @@ function DrillDown({ category, onClose }: { category: GamerCategory; onClose: ()
                             : fmtNumber(s.value)}
                       </span>
                     </div>
-                    {isPctLike(s.unit) && s.value !== null && (
+                    {!category.chart && isPctLike(s.unit) && s.value !== null && (
                       <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink-700">
                         <div
                           className={`h-full rounded-full bg-gradient-to-r ${BAR_TONE[category.accent]}`}

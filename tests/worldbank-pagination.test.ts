@@ -55,7 +55,13 @@ describe("World Bank adapter — mrnev truncation fallback", () => {
 
     // It must have retried without mrnev rather than accepting the empty result.
     expect(urls.some((u) => u.includes("mrnev=1"))).toBe(true);
-    expect(urls.some((u) => !u.includes("mrnev=1") && u.includes("per_page=25000"))).toBe(true);
+    const fallback = urls.find((u) => !u.includes("mrnev=1"));
+    expect(fallback).toBeDefined();
+    // Scoped to African countries so the payload stays inside the Next data
+    // cache ceiling (2MB) instead of refetching 5.6MB on every request.
+    expect(fallback).toContain("per_page=20000");
+    expect(fallback).toContain("NGA");
+    expect(fallback).not.toContain("/country/all/");
 
     // And the most recent observation must win, not the first row seen.
     const pop = snap.values.population ?? {};
@@ -79,7 +85,7 @@ describe("World Bank adapter — mrnev truncation fallback", () => {
 
     // One request per indicator, no fallback.
     expect(urls.every((u) => u.includes("mrnev=1"))).toBe(true);
-    expect(urls.some((u) => u.includes("per_page=25000"))).toBe(false);
+    expect(urls.some((u) => u.includes("per_page=20000"))).toBe(false);
   });
 
   it("yields no value rather than zero when a country is genuinely absent", async () => {

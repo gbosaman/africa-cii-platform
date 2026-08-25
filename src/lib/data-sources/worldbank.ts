@@ -12,6 +12,8 @@ import type { Confidence, Freshness, MetricValue } from "@/lib/types";
 
 const BASE = "https://api.worldbank.org/v2";
 const AFRICAN_ISO3 = new Set(COUNTRIES.map((c) => c.iso3));
+/** Semicolon-separated country path, used to scope the fallback request. */
+const AFRICAN_ISO3_PATH = COUNTRIES.map((c) => c.iso3).join(";");
 
 // World Bank uses a handful of ISO3 aliases that differ from UN ISO 3166.
 const WB_ALIAS: Record<string, string> = {
@@ -56,8 +58,12 @@ async function fetchPage(url: string, indicator: string): Promise<{ meta: WbMeta
  * possible failure here: it looks exactly like "no data published" and is
  * indistinguishable from a genuine gap unless you check the row count.
  *
- * A multi-page response is the tell. When we see one, re-request the whole
- * series in a single page and reduce it ourselves.
+ * A multi-page response is the tell. When we see one, re-request the series
+ * scoped to African countries only and reduce it ourselves. Scoping matters:
+ * the unscoped series is 5.6MB, which blows past the Next data-cache ceiling
+ * and would therefore be refetched on EVERY request — slow for us and rude to
+ * a free API. Scoped, it is 0.8MB, one page, and cacheable. No date bound is
+ * applied, so an indicator whose latest observation is old is still found.
  */
 async function fetchIndicator(
   indicator: string,
@@ -66,7 +72,8 @@ async function fetchIndicator(
   let { meta, rows } = await fetchPage(`${base}&mrnev=1&per_page=500`, indicator);
 
   if ((meta.pages ?? 1) > 1) {
-    ({ rows } = await fetchPage(`${base}&per_page=25000`, indicator));
+    const scoped = `${BASE}/country/${AFRICAN_ISO3_PATH}/indicator/${indicator}?format=json`;
+    ({ rows } = await fetchPage(`${scoped}&per_page=20000`, indicator));
   }
 
   // Reduce to the most-recent non-empty observation per country. This is a

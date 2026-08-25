@@ -66,7 +66,7 @@ const BUCKET_KEYS = [
 const LITERACY_KEYS = ["youthLiteracy", "adultLiteracy"] as const;
 
 /** Share of total population aged 15-24, combining the sex-specific bands. */
-function share15to24(m: MetricSnapshot, iso3: string): number | null {
+export function share15to24(m: MetricSnapshot, iso3: string): number | null {
   const v = (id: string) => m[id]?.[iso3]?.value ?? null;
   const m19 = v("pop_15_19_male");
   const f19 = v("pop_15_19_female");

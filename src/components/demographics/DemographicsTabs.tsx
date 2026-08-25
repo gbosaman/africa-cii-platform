@@ -18,11 +18,15 @@ export function DemographicsTabs({
   occupation,
   settlement,
   education,
+  age,
+  gender,
 }: {
   countries: DemoCountry[];
   occupation?: GamerCategory;
   settlement?: GamerCategory;
   education?: GamerCategory;
+  age?: GamerCategory;
+  gender?: GamerCategory;
 }) {
   const [tab, setTab] = useState<"gamers" | "population">("gamers");
 
@@ -69,7 +73,7 @@ export function DemographicsTabs({
             one says so, and names the source that would close the gap, rather than being estimated
             into existence.
           </div>
-          <GamerDemographics occupation={occupation} settlement={settlement} education={education} />
+          <GamerDemographics occupation={occupation} settlement={settlement} education={education} age={age} gender={gender} />
         </>
       ) : (
         <DemographicsView countries={countries} />
