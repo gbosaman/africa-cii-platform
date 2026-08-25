@@ -68,9 +68,9 @@ export default async function DashboardPage() {
             <span className="dot-live" /> Live market intelligence · 54 countries
           </span>
           <h1 className="display text-[2.1rem] text-white xs:text-5xl sm:text-[3.4rem]">
-            The <span className="gradient-text">African Creative</span>
+            African <span className="gradient-text">gaming and</span>
             <br />
-            <span className="gradient-text">Industries</span> Intelligence Platform
+            <span className="gradient-text">animation</span> intelligence
           </h1>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-400">
             Bloomberg-grade analytics for the world&apos;s fastest-growing creative market — games,
