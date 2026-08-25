@@ -29,9 +29,9 @@ function rampColor(v: number | null): string {
   if (v === null) return "#334155";
   const t = Math.max(0, Math.min(1, v / 100));
   const stops = [
-    [38, 60, 110], // #26 3c 6e cool navy
-    [22, 224, 122], // emerald
-    [245, 197, 24], // gold
+    [30, 44, 76], // navy
+    [34, 197, 94], // emerald
+    [56, 189, 248], // blue
   ];
   const seg = t < 0.5 ? 0 : 1;
   const lt = t < 0.5 ? t / 0.5 : (t - 0.5) / 0.5;
@@ -215,7 +215,7 @@ export function AfricaMap({ layers }: { layers: MapLayer[] }) {
           <span className="text-[10px] uppercase tracking-wider text-slate-500">Low</span>
           <div
             className="h-2 w-16 rounded-full sm:w-24"
-            style={{ background: "linear-gradient(90deg, #263c6e, #16E07A, #F5C518)" }}
+            style={{ background: "linear-gradient(90deg, #1e2c4c, #22c55e, #38bdf8)" }}
           />
           <span className="text-[10px] uppercase tracking-wider text-slate-500">High</span>
         </div>

@@ -49,7 +49,7 @@ export default async function MarketsPage() {
                 <Link href={`/countries/${d.iso3.toLowerCase()}`} className="w-28 shrink-0 truncate text-sm text-slate-200 hover:text-gold-400">
                   {c.name}
                 </Link>
-                <div className="flex-1"><ScoreBar value={d.digital} color="#16E07A" /></div>
+                <div className="flex-1"><ScoreBar value={d.digital} color="#38bdf8" /></div>
                 <span className="figure w-10 text-right text-sm font-semibold text-emerald2-400">{fmtScore(d.digital)}</span>
                 <span className="hidden w-28 justify-end text-right text-xs text-slate-400 sm:flex">
                   <MetricNumber metricId="internet_pct" iso3={d.iso3} value={val("internet_pct", d.iso3)} unit="%" />

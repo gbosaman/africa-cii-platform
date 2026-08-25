@@ -1,23 +1,31 @@
 import Link from "next/link";
 
-// Wordmark echoing the reference: an angular "A" glyph split gold/emerald,
-// with a tight condensed lockup. The tagline states the product's job.
+/**
+ * Wordmark: a rounded gradient tile carrying an angular "A", matching the
+ * reference's emerald→blue mark. The tagline states the product's job.
+ */
 export function Logo() {
   return (
-    <Link href="/" className="group flex items-center gap-2.5">
-      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <path d="M16 3 L28 27 H21 L16 15 L11 27 H4 Z" fill="#F5C518" />
-        <path d="M16 3 L28 27 H21 L16 15 Z" fill="#16E07A" />
-        <circle cx="16" cy="24" r="2.4" fill="#0a1020" />
-      </svg>
-      <div className="leading-none">
-        <div className="display text-[17px] tracking-tight text-white">
-          AFRICA<span className="text-gold-500"> CII</span>
-        </div>
-        <div className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-slate-500">
+    <Link href="/" className="group flex items-center gap-3">
+      <span className="grid h-9 w-9 place-items-center rounded-[11px] bg-gradient-to-br from-accent-400 via-accent-500 to-info-500 shadow-[0_6px_18px_-6px_rgba(34,197,94,0.6)]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 4 L20 20 H16.2 L12 11 L7.8 20 H4 Z"
+            fill="#05140b"
+            stroke="#05140b"
+            strokeWidth="0.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <span className="leading-none">
+        <span className="block text-[15px] font-bold tracking-tight text-white">
+          AFRICA<span className="text-accent-400"> CII</span>
+        </span>
+        <span className="mt-1 block text-[10px] font-medium text-slate-500">
           Creative Intelligence
-        </div>
-      </div>
+        </span>
+      </span>
     </Link>
   );
 }

@@ -54,7 +54,7 @@ export default async function EsportsPage() {
                   <Link href={`/countries/${s.entityId.toLowerCase()}`} className="w-28 shrink-0 truncate text-sm text-slate-200 hover:text-gold-400">
                     {c.name}
                   </Link>
-                  <div className="flex-1"><ScoreBar value={s.total} color="#16E07A" /></div>
+                  <div className="flex-1"><ScoreBar value={s.total} color="#38bdf8" /></div>
                   <span className="figure w-9 text-right text-sm font-semibold text-emerald2-400">{fmtScore(s.total)}</span>
                 </div>
               );

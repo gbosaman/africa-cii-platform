@@ -69,7 +69,7 @@ export default async function TrendsPage() {
                   <Link href={`/countries/${m.iso3.toLowerCase()}`} className="w-24 shrink-0 truncate text-sm text-slate-200 hover:text-gold-400">
                     {c.name}
                   </Link>
-                  <div className="flex-1"><ScoreBar value={m.momentum} color="#16E07A" /></div>
+                  <div className="flex-1"><ScoreBar value={m.momentum} color="#38bdf8" /></div>
                   <span className="hidden w-14 justify-end text-right text-xs sm:flex">
                     <MetricNumber metricId="gdp_growth" iso3={m.iso3} value={m.gdpGrowth} unit="%" />
                   </span>

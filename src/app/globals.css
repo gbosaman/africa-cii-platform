@@ -2,10 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+   Design tokens — deep navy base, emerald primary, categorical accents.
+   Mirrors the AGIP reference: glass panels, 18px radius, soft accent glows.
+--------------------------------------------------------------------------- */
 :root {
-  --bg: #0a1020;
-  --panel: #0f1830;
-  --panel-2: #111a30;
+  --navy-900: #070a12;
+  --navy-850: #0a0f1c;
+  --navy-800: #0f1626;
+  --navy-700: #16203a;
+  --navy-600: #1e2c4c;
+
+  --emerald: #22c55e;
+  --emerald-bright: #4ade80;
+  --emerald-soft: rgba(34, 197, 94, 0.16);
+  --blue: #38bdf8;
+  --blue-soft: rgba(56, 189, 248, 0.16);
+  --violet: #a855f7;
+  --violet-soft: rgba(168, 85, 247, 0.16);
+  --orange: #f59e0b;
+  --orange-soft: rgba(245, 158, 11, 0.16);
+  --red: #f43f5e;
+
+  --text: #f4f7fb;
+  --text-dim: #9fb0c9;
+  --text-faint: #64748b;
+
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.15);
+  --glass: rgba(20, 33, 56, 0.55);
+  --glass-strong: rgba(20, 33, 56, 0.78);
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 70px -20px rgba(0, 0, 0, 0.75);
 }
 
 html {
@@ -13,88 +44,148 @@ html {
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--navy-900);
   background-image:
-    radial-gradient(1200px 600px at 78% -8%, rgba(245, 197, 24, 0.06), transparent 60%),
-    radial-gradient(1000px 700px at 0% 100%, rgba(22, 224, 122, 0.05), transparent 55%),
-    linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
-  background-size: auto, auto, 44px 44px, 44px 44px;
-  color: #e7ecf5;
+    radial-gradient(900px 500px at 78% -10%, rgba(34, 197, 94, 0.07), transparent 60%),
+    radial-gradient(800px 600px at 5% 100%, rgba(56, 189, 248, 0.06), transparent 55%);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 @layer base {
   ::selection {
-    background: rgba(245, 197, 24, 0.28);
+    background: rgba(34, 197, 94, 0.28);
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+    scrollbar-color: var(--navy-600) transparent;
   }
   *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
   *::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.22);
-    border-radius: 999px;
+    background: var(--navy-600);
+    border-radius: 8px;
   }
 }
 
 @layer components {
-  /* Institutional panel */
+  /* Glass panel — the core surface */
   .panel {
-    @apply rounded-xl border border-line bg-ink-800/60 shadow-panel backdrop-blur-sm;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
   }
   .panel-tight {
-    @apply rounded-lg border border-line bg-ink-800/50;
+    background: var(--glass);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
   }
 
-  /* Display headings — heavy condensed, shouty like the source poster */
+  /* Headings use the body face at weight 700 — matches the reference. */
   .display {
-    font-family: var(--font-display), var(--font-sans), sans-serif;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 0.92;
-    text-transform: uppercase;
+    line-height: 1.05;
   }
 
-  /* Section eyebrow */
+  /* Gradient headline treatment from the reference hero */
+  .gradient-text {
+    background: linear-gradient(100deg, var(--emerald-bright) 0%, var(--blue) 55%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400;
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em];
+    color: var(--text-faint);
   }
 
-  /* Monospace data figure — the signature interactive object */
   .figure {
     font-family: var(--font-mono), ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
 
-  /* Clickable metric number */
   .metric-link {
-    @apply figure cursor-pointer rounded px-0.5 underline decoration-dotted decoration-slate-600 underline-offset-4 transition-colors;
+    @apply figure cursor-pointer rounded px-0.5 underline decoration-dotted underline-offset-4 transition-colors;
+    text-decoration-color: var(--text-faint);
   }
   .metric-link:hover {
-    @apply text-gold-400 decoration-gold-500 bg-gold-500/5;
+    color: var(--emerald-bright);
+    text-decoration-color: var(--emerald);
+    background: var(--emerald-soft);
   }
 
   .pill {
     @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider;
   }
 
-  /* py-2.5 keeps rows ≥44px on touch; tightens slightly on desktop pointers. */
   .nav-item {
-    @apply flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-ink-700/70 hover:text-white lg:min-h-0 lg:py-2;
+    @apply flex min-h-[44px] items-center gap-3 rounded-[12px] px-3 py-2.5 text-sm font-medium transition-colors lg:min-h-0 lg:py-2;
+    color: var(--text-dim);
+  }
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
   }
   .nav-item-active {
-    @apply bg-ink-700 text-white shadow-[inset_2px_0_0_0_theme(colors.gold.500)];
+    background: var(--emerald-soft);
+    color: var(--emerald-bright);
+    box-shadow: inset 2px 0 0 0 var(--emerald);
+  }
+
+  /* KPI card with a soft accent glow in the top-right corner */
+  .kpi {
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+  .kpi:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-lg);
+  }
+  .kpi::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.55;
+    pointer-events: none;
+    background: radial-gradient(320px 120px at 100% 0, var(--_glow, transparent), transparent 70%);
+  }
+  .kpi[data-accent="emerald"] { --_glow: rgba(34, 197, 94, 0.16); }
+  .kpi[data-accent="blue"]    { --_glow: rgba(56, 189, 248, 0.16); }
+  .kpi[data-accent="violet"]  { --_glow: rgba(168, 85, 247, 0.16); }
+  .kpi[data-accent="orange"]  { --_glow: rgba(245, 158, 11, 0.16); }
+
+  .kpi-icon {
+    @apply grid h-[38px] w-[38px] place-items-center rounded-[11px];
+  }
+
+  /* Live status dot */
+  .dot-live {
+    @apply inline-block h-2 w-2 rounded-full;
+    background: var(--emerald);
+    animation: pulseDot 1.6s infinite;
   }
 
   .stat-grid {
-    @apply grid gap-px overflow-hidden rounded-xl border border-line bg-line;
+    @apply grid gap-px overflow-hidden bg-line;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
   }
 }
 
@@ -104,5 +195,51 @@ body {
   }
   .clip-slant {
     clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  }
+  .view-enter {
+    animation: fadeUp 0.5s both;
+  }
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  }
+  50% {
+    opacity: 0.5;
+    box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scrollX {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Anyone who has asked for less motion gets none of the ambient kind. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

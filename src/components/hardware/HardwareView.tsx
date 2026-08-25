@@ -177,7 +177,7 @@ export function HardwareView({ rows }: { rows: HardwareRow[] }) {
                     <td className="px-3 py-2">
                       <div className="flex items-center justify-end gap-2">
                         <span className="w-14">
-                          <ScoreBar value={r.importAccessScore} color="#16E07A" />
+                          <ScoreBar value={r.importAccessScore} color="#38bdf8" />
                         </span>
                         <span className="figure w-9 text-right text-emerald2-400">
                           {fmtScore(r.importAccessScore)}

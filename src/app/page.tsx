@@ -3,7 +3,9 @@ import { getIntelligence, buildMapLayers } from "@/lib/data/intelligence";
 import { AfricaMap } from "@/components/map/AfricaMap";
 import { COUNTRY_BY_ISO3, flagEmoji } from "@/lib/data/countries";
 import { MetricNumber } from "@/components/metric/MetricNumber";
-import { Panel, SectionHeader, ScoreBar, RankBadge, Pill, CoverageBadge } from "@/components/ui/primitives";
+import { Panel, SectionHeader, ScoreBar, RankBadge, Pill, CoverageBadge, KpiCard } from "@/components/ui/primitives";
+import { HeroCanvas } from "@/components/hero/HeroCanvas";
+import { Ticker, type TickerItem } from "@/components/hero/Ticker";
 import { Icon } from "@/components/ui/Icon";
 import { fmtScore, fmtNumber } from "@/lib/format";
 import { STUDIOS, ANIMATION_STUDIOS } from "@/lib/data/studios";
@@ -39,68 +41,77 @@ export default async function DashboardPage() {
     studioCountByCountry,
   }).slice(0, 3);
 
+  const tickerItems: TickerItem[] = [
+    ...intel.scores.market_attractiveness.slice(0, 6).map((sc) => ({
+      label: COUNTRY_BY_ISO3[sc.entityId]?.name ?? sc.entityId,
+      value: fmtScore(sc.total),
+      tone: "emerald" as const,
+    })),
+    ...growth.slice(0, 4).map((g) => ({
+      label: `${COUNTRY_BY_ISO3[g.iso3]?.name ?? g.iso3} growth`,
+      value: `${(g.g as number).toFixed(1)}%`,
+      tone: "blue" as const,
+    })),
+    { label: "Studios tracked", value: String(c.studios), tone: "violet" as const },
+    { label: "Games tracked", value: String(c.games), tone: "orange" as const },
+  ];
+
   return (
-    <div className="space-y-8">
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-2xl border border-line bg-ink-850/80 p-6 sm:p-9">
+    <div className="space-y-8 view-enter">
+      {/* ── Hero with ambient constellation banner ───────────────────── */}
+      <section className="relative -mx-4 overflow-hidden border-b border-line px-4 pb-10 pt-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <HeroCanvas />
         <div className="relative z-10 max-w-3xl">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <Pill tone="emerald">Africa · 54 countries</Pill>
-            <Pill tone="gold">Live World Bank data</Pill>
-            <span className="pill border-line bg-ink-700 text-slate-400">
-              Games · Esports · Animation
-            </span>
-          </div>
-          <h1 className="display text-[2rem] leading-[0.95] text-white xs:text-4xl sm:text-6xl sm:leading-[0.9]">
-            Africa&apos;s creative
+          <span className="pill mb-5 border-[rgba(34,197,94,0.3)] bg-[var(--emerald-soft)] text-accent-400">
+            <span className="dot-live" /> Live market intelligence · 54 countries
+          </span>
+          <h1 className="display text-[2.1rem] text-white xs:text-5xl sm:text-[3.4rem]">
+            The <span className="gradient-text">African Creative</span>
             <br />
-            digital economy,
-            <br />
-            <span className="text-gold-500">decision-ready.</span>
+            <span className="gradient-text">Industries</span> Intelligence Platform
           </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-300">
-            Fragmented data on African games, esports and animation — collected, verified,
-            normalised and scored into comparable intelligence. Every number traces to its
-            source. Estimates are labelled. Zero never means unknown.
+          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-400">
+            Bloomberg-grade analytics for the world&apos;s fastest-growing creative market — games,
+            esports, animation, studios, hardware and investment intelligence, continuously updated
+            from free public data. Every number traces to its source.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/rankings"
-              className="clip-slant inline-flex items-center gap-2 bg-gold-500 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-ink-900 transition-colors hover:bg-gold-400"
+              className="inline-flex items-center gap-2 rounded-[12px] bg-accent-500 px-5 py-2.5 text-sm font-semibold text-[#04140a] transition-colors hover:bg-accent-400"
             >
-              Explore rankings <Icon name="arrow" className="h-4 w-4" />
+              Open rankings <Icon name="arrow" className="h-4 w-4" />
             </Link>
             <Link
-              href="/methodology"
-              className="inline-flex items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-semibold text-slate-200 hover:border-gold-500/40"
+              href="/countries"
+              className="inline-flex items-center gap-2 rounded-[12px] border border-line-strong px-5 py-2.5 text-sm font-semibold text-slate-200 transition-colors hover:border-[rgba(34,197,94,0.4)]"
             >
-              How scores work
+              Explore the map
             </Link>
           </div>
-        </div>
-        <div className="pointer-events-none absolute -right-10 top-1/2 hidden -translate-y-1/2 opacity-30 lg:block">
-          <Icon name="globe" className="h-72 w-72 text-emerald2-500/40" strokeWidth={0.5} />
         </div>
       </section>
 
-      {/* ── Pulse KPI strip ──────────────────────────────────────────── */}
+      {/* ── Live ticker ──────────────────────────────────────────────── */}
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+        <Ticker items={tickerItems} />
+      </div>
+
+      {/* ── Pulse KPI cards ──────────────────────────────────────────── */}
       <section>
         <p className="eyebrow mb-3">Africa creative industry pulse</p>
-        {/* 7 tiles: the last one spans the full row on 2-col layouts so no
-            empty cell is left dangling. */}
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line [&>*:last-child]:col-span-2 md:grid-cols-4 lg:grid-cols-7 lg:[&>*:last-child]:col-span-1">
-          <PulseTile label="Countries" value={c.countries} href="/countries" />
-          <PulseTile label="Studios" value={c.studios} href="/studios" tone="gold" />
-          <PulseTile label="Games" value={c.games} href="/games" />
-          <PulseTile label="Animation" value={c.animationStudios} href="/animation" />
-          <PulseTile label="Esports orgs" value={c.esportsTeams} href="/esports" />
-          <PulseTile label="Tournaments" value={c.tournaments} href="/esports" na />
-          <PulseTile label="Metrics/country" value={c.metricsTracked} href="/explorer" tone="emerald" />
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(210px,1fr))]">
+          <KpiCard label="Countries tracked" value={fmtNumber(c.countries)} accent="emerald" icon="globe" href="/countries" />
+          <KpiCard label="Studios" value={fmtNumber(c.studios)} sub="verified + community" accent="blue" icon="building" href="/studios" />
+          <KpiCard label="Games" value={fmtNumber(c.games)} sub="live Steam signals" accent="violet" icon="controller" href="/games" />
+          <KpiCard label="Animation studios" value={fmtNumber(c.animationStudios)} accent="orange" icon="film" href="/animation" />
+          <KpiCard label="Esports orgs" value={fmtNumber(c.esportsTeams)} accent="emerald" icon="trophy" href="/esports" />
+          <KpiCard label="Metrics per country" value={fmtNumber(c.metricsTracked)} sub="World Bank, live" accent="blue" icon="table" href="/explorer" />
         </div>
-        <p className="mt-2 text-[11px] text-slate-500">
+        <p className="mt-3 text-[11px] text-slate-500">
           Studios combine our verified records with the GameDevMap community directory,
-          de-duplicated. “N/A” tiles await verified free sources — shown as unavailable rather
-          than zero.
+          de-duplicated. Tournament data awaits a verified free source — shown as unavailable
+          rather than zero.
         </p>
       </section>
 
@@ -254,35 +265,5 @@ export default async function DashboardPage() {
         </div>
       )}
     </div>
-  );
-}
-
-function PulseTile({
-  label,
-  value,
-  href,
-  tone,
-  na,
-}: {
-  label: string;
-  value: number;
-  href: string;
-  tone?: "gold" | "emerald";
-  na?: boolean;
-}) {
-  const color = na
-    ? "text-slate-500"
-    : tone === "gold"
-      ? "text-gold-400"
-      : tone === "emerald"
-        ? "text-emerald2-400"
-        : "text-white";
-  return (
-    <Link href={href} className="group bg-ink-850 p-4 transition-colors hover:bg-ink-800">
-      <p className={`figure text-2xl font-bold ${color}`}>{na ? "N/A" : fmtNumber(value)}</p>
-      <p className="mt-1 text-[11px] uppercase tracking-wider text-slate-500 group-hover:text-slate-400">
-        {label}
-      </p>
-    </Link>
   );
 }

@@ -147,19 +147,19 @@ export function StudioDirectory({ rows }: { rows: DirectoryRow[] }) {
             <Link
               key={r.id}
               href={`/studios/${r.id}`}
-              className="block rounded-lg border border-line bg-ink-850/60 p-4 transition-colors hover:border-gold-500/30"
+              className="block min-w-0 rounded-lg border border-line bg-ink-850/60 p-4 transition-colors hover:border-gold-500/30"
             >
               {card}
             </Link>
           ) : (
-            <div key={r.id} className="rounded-lg border border-line bg-ink-850/40 p-4">
+            <div key={r.id} className="min-w-0 rounded-lg border border-line bg-ink-850/40 p-4">
               {card}
               {r.website && (
                 <a
                   href={r.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-gold-400 hover:text-gold-300"
+                  className="mt-2 inline-flex max-w-full items-center gap-1 truncate text-[11px] font-medium text-gold-400 hover:text-gold-300"
                 >
                   Website <Icon name="external" className="h-3 w-3" />
                 </a>

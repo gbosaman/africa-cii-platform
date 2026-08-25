@@ -11,7 +11,7 @@ interface Point {
 export function TrendChart({
   data,
   height = 160,
-  color = "#F5C518",
+  color = "#22c55e",
   unitLabel = "",
 }: {
   data: Point[];
