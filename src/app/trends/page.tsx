@@ -4,8 +4,8 @@ import { getIntelligence } from "@/lib/data/intelligence";
 import { computeMomentum } from "@/lib/scoring/momentum";
 import { buildIndustryEvents, EVENT_META } from "@/lib/data/events";
 import { generateInsights } from "@/lib/insights";
+import { directoryCountByCountry } from "@/lib/data/studio-directory";
 import { COUNTRY_BY_ISO3, flagEmoji } from "@/lib/data/countries";
-import { STUDIOS } from "@/lib/data/studios";
 import { MetricNumber } from "@/components/metric/MetricNumber";
 import { SectionHeader, Panel, Pill, ScoreBar } from "@/components/ui/primitives";
 import { fmtScore } from "@/lib/format";
@@ -21,10 +21,10 @@ export default async function TrendsPage() {
   const momentum = computeMomentum(intel.snapshot.metrics);
   const events = buildIndustryEvents();
 
-  const studioCountByCountry = STUDIOS.reduce<Record<string, number>>((acc, s) => {
-    acc[s.countryIso3] = (acc[s.countryIso3] ?? 0) + 1;
-    return acc;
-  }, {});
+  // Use the SAME source as the headline studio count (verified + community,
+  // de-duplicated). Deriving the insight from the verified seed alone made
+  // the page contradict itself: "182 studios" beside "the most catalogued (5)".
+  const studioCountByCountry = directoryCountByCountry();
   const insights = generateInsights({
     scores: intel.scores,
     value: (id, iso3) => intel.snapshot.metrics[id]?.[iso3]?.value ?? null,

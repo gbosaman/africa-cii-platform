@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { fmtScore, fmtNumber } from "@/lib/format";
 import { STUDIOS, ANIMATION_STUDIOS } from "@/lib/data/studios";
 import { generateInsights } from "@/lib/insights";
+import { directoryCountByCountry } from "@/lib/data/studio-directory";
 
 export const revalidate = 86400;
 
@@ -28,10 +29,10 @@ export default async function DashboardPage() {
 
   const c = intel.counts;
 
-  const studioCountByCountry = STUDIOS.reduce<Record<string, number>>((acc, s) => {
-    acc[s.countryIso3] = (acc[s.countryIso3] ?? 0) + 1;
-    return acc;
-  }, {});
+  // Use the SAME source as the headline studio count (verified + community,
+  // de-duplicated). Deriving the insight from the verified seed alone made
+  // the page contradict itself: "182 studios" beside "the most catalogued (5)".
+  const studioCountByCountry = directoryCountByCountry();
   const insights = generateInsights({
     scores: intel.scores,
     value: (id, iso3) => intel.snapshot.metrics[id]?.[iso3]?.value ?? null,
@@ -97,8 +98,9 @@ export default async function DashboardPage() {
           <PulseTile label="Metrics/country" value={c.metricsTracked} href="/explorer" tone="emerald" />
         </div>
         <p className="mt-2 text-[11px] text-slate-500">
-          Directory counts reflect the verified seed (Phase 2/3 ingestion expands them). “N/A”
-          tiles await verified free sources — shown as unavailable rather than zero.
+          Studios combine our verified records with the GameDevMap community directory,
+          de-duplicated. “N/A” tiles await verified free sources — shown as unavailable rather
+          than zero.
         </p>
       </section>
 
