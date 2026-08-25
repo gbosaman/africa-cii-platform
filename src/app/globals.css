@@ -243,3 +243,43 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Leaflet — themed to the dark palette. Leaflet ships light defaults, so the
+   container, tooltips and controls are all restyled rather than left white.
+--------------------------------------------------------------------------- */
+.leaflet-container {
+  background: var(--navy-900);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  outline: none;
+}
+.leaflet-tooltip.cii-tip {
+  background: var(--glass-strong);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 10px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+.leaflet-tooltip.cii-tip::before {
+  display: none; /* drop the light arrow */
+}
+.leaflet-control-zoom a {
+  background: var(--navy-800);
+  color: var(--text-dim);
+  border-color: var(--line);
+}
+.leaflet-control-zoom a:hover {
+  background: var(--navy-700);
+  color: var(--text);
+}
+.leaflet-control-attribution {
+  background: rgba(7, 10, 18, 0.8) !important;
+  color: var(--text-faint) !important;
+  font-size: 10px;
+}
+.leaflet-control-attribution a {
+  color: var(--text-dim) !important;
+}

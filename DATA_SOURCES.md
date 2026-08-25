@@ -203,3 +203,28 @@ own quote and does the part that can be done rigorously: months of average incom
 tariff-adjusted landed cost. That landed cost is explicitly **modelled, not observed** — it applies
 an all-products weighted-mean tariff and excludes VAT, freight, clearing and currency spread, so the
 UI labels it a directional floor rather than a quote.
+
+## Map geometry & regional aggregates
+
+**Boundaries** — `src/lib/data/africa-geo.ts` is generated from
+[johan/world.geo.json](https://github.com/johan/world.geo.json), itself derived from **Natural Earth
+(public domain)**. Filtered to the 54 states in our country seed, coordinates rounded to 3dp
+(~110 m), and **bundled** rather than fetched at runtime — no CDN dependency, no CSP surprises, and
+the map still draws offline. 40KB.
+
+49 of 54 countries have boundary geometry; the source omits five small island states (Cabo Verde,
+Comoros, Mauritius, Seychelles, São Tomé and Príncipe). Rather than let them vanish from the map
+they are drawn as circle markers from their centroids, and `MISSING_GEOMETRY` records which ones.
+
+**Basemap tiles** — CARTO dark basemaps, attributed in-map to OpenStreetMap contributors and CARTO
+as their terms require. The choropleth renders independently, so a tile outage degrades the
+backdrop, not the data.
+
+**Regional aggregates** — `worldbank-regions.ts` pulls World Bank region codes (SSF, MEA, EAS, ECS,
+LCN, NAC, WLD) for population, GDP, GDP/capita, internet penetration and population growth.
+
+This is a deliberate substitution. The reference dashboard compares regions on *gamers* and *gaming
+revenue*; those come from paid market research, so this platform does not reproduce them as fact.
+The comparison answers a narrower question using indicators anyone can verify — and it still
+carries the core argument: Sub-Saharan Africa's population grows at ~2.4%/yr against a world
+average of ~0.9%, the fastest of any region, from the lowest GDP-per-capita base.

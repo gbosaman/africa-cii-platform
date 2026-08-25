@@ -8,6 +8,8 @@ export interface NavLink {
 
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Dashboard", icon: "grid", group: "Intelligence" },
+  { href: "/executive", label: "Executive Dashboard", icon: "grid", group: "Intelligence" },
+  { href: "/map", label: "Africa Map", icon: "globe", group: "Intelligence" },
   { href: "/countries", label: "Countries", icon: "globe", group: "Intelligence" },
   { href: "/rankings", label: "Rankings", icon: "bars", group: "Intelligence" },
   { href: "/markets", label: "Markets", icon: "pulse", group: "Intelligence" },
