@@ -255,3 +255,34 @@ database; four candidates were rejected in the same run and are not present.
 Data © Valve Corporation via the public Steam Web API, cached daily. Prices are US-region list
 prices and differ in local storefronts. An unreachable title records nothing rather than writing a
 zero.
+
+## Demographics
+
+`/demographics` adds 12 World Bank series covering age structure, gender, income, education,
+employment, connectivity and urbanisation — verified, per country, across all 54.
+
+**What was deliberately not copied.** The reference platform's demographics page is a *gamer survey*
+("weighted survey · n=24,800 across 15 markets") covering age, gender, income, education,
+occupation, daily play hours, device ownership and urban/rural. Those numbers were not reproduced.
+We did not run that survey, and republishing someone else's research under our own provenance is
+the same failure as printing a Newzoo revenue figure or an invented GPU price. "n=24,800" would be a
+lie coming from us.
+
+**What replaced it.** Seven of the reference's eight categories have a genuine official equivalent:
+
+| Category | Verified source |
+|---|---|
+| Age distribution | `SP.POP.0014.TO.ZS`, `SP.POP.1564.TO.ZS`, `SP.POP.65UP.TO.ZS` |
+| Gender | `SP.POP.TOTL.FE.ZS`, `SL.TLF.CACT.FE.ZS` |
+| Income | `NY.GNP.PCAP.CD`, `SI.POV.GINI` |
+| Education | `SE.ADT.LITR.ZS`, `SE.SEC.ENRR`, `SE.TER.ENRR` |
+| Occupation / employment | `SL.TLF.CACT.ZS`, `SL.UEM.TOTL.ZS`, `SL.UEM.1524.ZS` |
+| Device ownership | `IT.NET.USER.ZS`, `IT.CEL.SETS.P2`, `EG.ELC.ACCS.ZS` |
+| Urban vs rural | `SP.URB.TOTL.IN.ZS`, `SP.RUR.TOTL.ZS` |
+
+The eighth — **daily play hours, genre preference and gamer gender split** — genuinely requires
+primary research, so the page carries an explicit N/A panel saying so instead of estimating.
+
+This is arguably the more useful artefact anyway: per-country across all 54 states rather than a
+single continent-wide survey aggregate, with each observation's publication year on screen and
+every figure clickable through to its source.

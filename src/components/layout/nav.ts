@@ -13,6 +13,7 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/countries", label: "Countries", icon: "globe", group: "Intelligence" },
   { href: "/rankings", label: "Rankings", icon: "bars", group: "Intelligence" },
   { href: "/markets", label: "Markets", icon: "pulse", group: "Intelligence" },
+  { href: "/demographics", label: "Demographics", icon: "users", group: "Intelligence" },
   { href: "/hardware", label: "Hardware", icon: "chip", group: "Intelligence" },
 
   { href: "/studios", label: "Studios", icon: "building", group: "Directories" },

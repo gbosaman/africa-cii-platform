@@ -87,7 +87,8 @@ export interface MetricDefinition {
     | "talent"
     | "investment"
     | "distribution"
-    | "hardware";
+    | "hardware"
+    | "demographics";
   /** Higher raw value is "better" for scoring? Most are true; some (risk) false. */
   higherIsBetter: boolean;
   description: string;
