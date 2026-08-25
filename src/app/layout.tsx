@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { MetricDrawerProvider } from "@/components/metric/MetricDrawerProvider";
+import { resolveSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const archivo = Archivo({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   },
   description:
     "Verified, decision-ready intelligence on Africa's games, esports and animation economy — country, market, studio and game level.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
