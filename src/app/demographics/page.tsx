@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { getSnapshot } from "@/lib/data/snapshot";
 import { COUNTRIES } from "@/lib/data/countries";
-import { DemographicsView, type DemoCountry } from "@/components/demographics/DemographicsView";
+import type { DemoCountry } from "@/components/demographics/DemographicsView";
+import { DemographicsTabs } from "@/components/demographics/DemographicsTabs";
 import { SectionHeader } from "@/components/ui/primitives";
 
 export const revalidate = 86400;
 export const metadata: Metadata = {
-  title: "Demographics — audience & workforce structure across Africa",
+  title: "Demographics — who plays games in Africa, and who could",
   description:
-    "Age structure, gender, income, education, employment, connectivity and urbanisation for all 54 African countries, from verified World Bank series.",
+    "Gamer demographics from published survey research, alongside per-country population structure from World Bank series. Every figure attributed.",
 };
 
 const KEYS = [
@@ -50,30 +51,18 @@ export default async function DemographicsPage() {
   return (
     <div className="view-enter space-y-6">
       <SectionHeader
-        eyebrow="Audience & workforce structure · 54 countries · World Bank verified"
+        eyebrow="Who plays, and who could · survey research + official statistics"
         title="Demographics"
       />
 
       <p className="max-w-3xl text-sm text-slate-400">
-        Who is actually out there — by age, gender, income, education, employment and connectivity.
-        Every figure is a verified World Bank observation for that specific country, with its
-        publication year shown. Pick a country to see its profile, or compare any indicator across
-        the continent.
+Two datasets, deliberately kept apart. <span className="text-slate-300">Gamer demographics</span> are
+        published survey findings about players, attributed to the researchers who ran them.{" "}
+        <span className="text-slate-300">Population demographics</span> are official per-country
+        statistics about everyone. Every figure carries its source, and every gap is labelled.
       </p>
 
-      {/* The honest note about what this is, and is not */}
-      <div className="rounded-lg border border-line bg-ink-850/60 p-4 text-sm text-slate-300">
-        <span className="font-semibold text-white">Population demographics, not a gamer survey. </span>
-        This is the structure of each country&apos;s population from official statistics. It is not a
-        survey of players — we have not run one, and reproducing someone else&apos;s survey under our
-        own provenance would be dishonest. So there are no figures here for daily play hours, genre
-        preference or gamer gender split: those require primary research, and where we lack it the
-        page says so rather than estimating. What these indicators <em>do</em> support is the
-        upstream question — how large, how young, how connected, how educated and how employed the
-        addressable population is.
-      </div>
-
-      <DemographicsView countries={countries} />
+      <DemographicsTabs countries={countries} />
     </div>
   );
 }

@@ -286,3 +286,32 @@ primary research, so the page carries an explicit N/A panel saying so instead of
 This is arguably the more useful artefact anyway: per-country across all 54 states rather than a
 single continent-wide survey aggregate, with each observation's publication year on screen and
 every figure clickable through to its source.
+
+## Gamer demographics — attributed survey research
+
+`/demographics` now leads with **gamer demographics**: the eight categories requested (age, gender,
+income, education, occupation, daily hours, device ownership, urban/rural), each clickable through
+to a drill-down carrying the figures and their source.
+
+**The rule applied here.** Every number is one PUBLISHED BY A NAMED RESEARCHER, reported with their
+sample size, markets, date, methodology and a link — presented as *"GeoPoll found X"*, never *"we
+found X"*. This platform has run no player survey and does not imply otherwise. That is the
+difference between citing research and appropriating it.
+
+| Source | Sample | Markets |
+|---|---|---|
+| **GeoPoll**, Gaming in Africa 2024 | 2,500+ gamers | Egypt, Kenya, Nigeria, South Africa |
+| **GeoPoll & PAGG**, Gaming in Africa 2025 | 6,000+ players | + Senegal, Tanzania |
+| **Newzoo × Carry1st**, Africa Games Market | Newzoo panel: 73,000+ across 36+ markets | Continental estimate |
+
+**Coverage is honest about itself:** 3 categories carry published figures (income/spending, daily
+hours, device ownership), 2 are partial (age — only a qualitative "16–35" band; gender — only a
+reported direction of skew), and 3 have **no free published figure at all** (education, occupation,
+urban/rural of gamers). The unpublished three say so and name what would close the gap, rather than
+being estimated into existence.
+
+The continental totals (349M gamers, 304M mobile, $1.8B revenue) are Newzoo × Carry1st's **modelled
+estimates**, labelled as such — they are not a census and not ours.
+
+Population demographics moved to a second tab. Blending the two would let a 2,500-person survey in
+four markets masquerade as a continental fact, so they stay separate with separate provenance.
