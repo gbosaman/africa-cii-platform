@@ -14,6 +14,9 @@ export interface DirectoryRow {
   city: string | null;
   categories: string[];
   gdmType: string | null;
+  /** All type labels this record answers to. A studio can be both a game
+   *  developer and an animation house, and must be findable under either. */
+  types: string[];
   website: string | null;
   tier: "verified" | "community";
   foundedYear: number | null;
@@ -33,7 +36,7 @@ export function StudioDirectory({ rows }: { rows: DirectoryRow[] }) {
     [rows],
   );
   const types = useMemo(
-    () => [...new Set(rows.map((r) => r.gdmType).filter(Boolean) as string[])].sort(),
+    () => [...new Set(rows.flatMap((r) => r.types))].sort(),
     [rows],
   );
 
@@ -44,7 +47,7 @@ export function StudioDirectory({ rows }: { rows: DirectoryRow[] }) {
         (!term || r.name.toLowerCase().includes(term) || (r.city ?? "").toLowerCase().includes(term)) &&
         (country === "All" || r.country === country) &&
         (tier === "all" || r.tier === tier) &&
-        (type === "All" || r.gdmType === type),
+        (type === "All" || r.types.includes(type)),
     );
   }, [rows, q, country, tier, type]);
 

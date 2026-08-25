@@ -27,6 +27,12 @@ export default function StudiosPage() {
       city: s.city ?? null,
       categories: s.categories,
       gdmType: s.gdmType ?? null,
+      // "Animation" comes from the competitive map; a studio in both datasets
+      // carries both labels rather than being relabelled into one.
+      types: [
+        ...(s.gdmType ? [s.gdmType] : []),
+        ...(s.isAnimation && s.gdmType !== "Animation" ? ["Animation"] : []),
+      ],
       website: s.website ?? null,
       tier: s.tier,
       foundedYear: s.foundedYear ?? null,
@@ -56,6 +62,7 @@ export default function StudiosPage() {
         <Pill tone="gold">{stats.community} community</Pill>
         <Pill>{stats.merged} merged duplicates</Pill>
         <Pill tone="gold">{LINK_HEALTH_ISSUES.length} broken links</Pill>
+        <Pill tone="emerald">{stats.animation} animation</Pill>
       </div>
 
       {/* Attribution — required by the source and by our own provenance rules */}
@@ -76,6 +83,18 @@ export default function StudiosPage() {
           , a long-running community-maintained directory of game-development organisations, and are
           <span className="font-semibold"> not independently verified</span>.
         </p>
+        <p className="mt-2">
+          <span className="font-semibold text-white">Animation studios </span>
+          come from this platform&apos;s{" "}
+          <Link href="/animation" className="font-semibold text-emerald2-400 underline decoration-dotted underline-offset-2 hover:text-emerald2-300">
+            animation competitive map
+          </Link>
+          . Filter the type dropdown to <span className="text-slate-100">Animation</span> to see
+          them. Only records sourced to a studio&apos;s own site are marked verified here — the
+          map&apos;s third-party-sourced rows stay in the community tier, because moving a record
+          between datasets must never upgrade its provenance. A studio that appears in both
+          directories is merged, not listed twice, and keeps both type labels.
+        </p>
         <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
           Attribution: organisation name, type, city, region, country and website are reproduced as
           facts from GameDevMap with credit; no editorial text is copied. Retrieved{" "}
@@ -89,10 +108,12 @@ export default function StudiosPage() {
         </p>
         <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
           <span className="font-semibold text-slate-400">Link health. </span>
-          All {LINK_HEALTH_CHECKED} studio websites were swept on {LINK_HEALTH_SWEPT_AT};{" "}
+          The {LINK_HEALTH_CHECKED} game-studio websites were swept on {LINK_HEALTH_SWEPT_AT};{" "}
           {LINK_HEALTH_ISSUES.length} are unreachable and are flagged in place. Every failure was
           re-checked with a longer timeout and a retry before being recorded — the first pass
-          produced 8 false positives.
+          produced 8 false positives. The animation records added since that sweep have{" "}
+          <span className="text-slate-400">not been link-checked</span>, so their websites carry no
+          health flag either way.
         </p>
       </div>
 

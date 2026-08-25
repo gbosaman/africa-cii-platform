@@ -49,8 +49,12 @@ describe("buildStudioDirectory", () => {
     }
   });
 
-  it("attributes every community record to GameDevMap with a retrieval date", () => {
-    const community = studios.filter((s) => s.tier === "community");
+  it("attributes every GameDevMap-sourced record to GameDevMap with a retrieval date", () => {
+    // The community tier now has two upstreams: GameDevMap, and third-party
+    // -sourced rows from the animation competitive map. This asserts the
+    // GameDevMap contract; the animation rows carry their own sources and are
+    // covered by tests/directory-animation.test.ts.
+    const community = studios.filter((s) => s.tier === "community" && !s.isAnimation);
     expect(community.length).toBeGreaterThan(0);
     for (const s of community) {
       expect(s.attribution?.name).toBe(GAMEDEVMAP_SOURCE.name);
@@ -73,9 +77,19 @@ describe("buildStudioDirectory", () => {
     }
   });
 
-  it("never invents a founding year for community entries", () => {
-    for (const s of studios.filter((x) => x.tier === "community")) {
-      expect(s.foundedYear).toBeNull(); // GameDevMap publishes none
+  it("never invents a founding year for GameDevMap entries", () => {
+    // GameDevMap publishes no founding years, so any value would be invented.
+    // Animation records are excluded because theirs are sourced facts, not
+    // fabrications — Sunrise Productions' 1998 comes with a citation.
+    for (const s of studios.filter((x) => x.tier === "community" && !x.isAnimation)) {
+      expect(s.foundedYear).toBeNull();
+    }
+  });
+
+  it("only accepts a founding year on an animation record when it is sourced", () => {
+    for (const s of studios.filter((x) => x.isAnimation && x.foundedYear !== null)) {
+      expect(s.sources.length, s.id).toBeGreaterThan(0);
+      expect(s.foundedYear).toBeGreaterThan(1950);
     }
   });
 });

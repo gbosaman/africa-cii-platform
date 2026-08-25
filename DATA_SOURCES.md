@@ -584,3 +584,37 @@ fee as free understates a real cost to someone budgeting against it.
 One forward-looking note the advisor surfaces: the YouTube Partner Program threshold rises on
 1 February 2027 to 8,000 watch hours for new applicants, so a studio starting now should plan
 against the higher bar rather than today's 4,000.
+
+### Animation studios in the studio directory
+
+The 48-row animation competitive map is folded into `/studios`, and **Animation** is a selectable
+type in the directory's type filter.
+
+**Deduplication, not concatenation.** Several studios appear in both datasets, so animation records
+resolve against the existing directory by normalised name and by normalised URL — the same matching
+the GameDevMap fold-in uses. A match enriches the existing record (adds the `Animation` category,
+the alias and the animation sources) instead of creating a second row. Sea Monster is the live case:
+it is a GameDevMap-listed game developer *and* an animation house, so it appears once, findable
+under both `Developer` and `Animation`. `tests/directory-animation.test.ts` asserts no
+name-plus-country pair ever appears twice.
+
+Because a studio can legitimately hold more than one type, the filter matches against a **list** of
+type labels rather than a single one. Relabelling Sea Monster as "Animation" would have hidden it
+from the game-developer filter it also belongs in.
+
+**Provenance is not widened in transit.** This directory defines *verified* as sourced to the
+organisation's own site and checked by us. Only the animation map's `official` tier meets that bar,
+so only those 8 records enter as verified; the map's `verified` tier is third-party (trade press,
+reference works) — real evidence, but not the organisation speaking for itself — and lands in
+*community* here. Moving a record between datasets must never upgrade its provenance, and a test
+enforces it in both directions.
+
+**The game-studio count stays a game count.** `directoryCountByCountry()` feeds `studio_count`,
+which is the GAME-industry maturity input for scoring, so animation-only records are excluded from
+it — folding 48 animation houses into the game count would inflate game-industry maturity with
+companies that make no games. A studio that does both (Sea Monster) still counts, because it really
+is a game developer. The total stayed at 182 after the merge, which is the check that this worked.
+
+One consequence worth stating on the page, and stated there: the link-health sweep covered the 181
+game-studio websites at its run date. The animation records were added afterwards and have **not**
+been link-checked, so they carry no health flag either way rather than an implied pass.

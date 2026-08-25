@@ -13,6 +13,8 @@ import type { Studio, StudioCategory } from "@/lib/types";
 
 /** Normalise a studio name for matching: case, accents, punctuation, and
  *  common suffixes (Ltd, Studios, Games…) that vary between directories. */
+import { ANIMATION_STUDIO_PROFILES } from "@/lib/data/animation-studios";
+
 export function normaliseName(name: string): string {
   return name
     .toLowerCase()
@@ -89,6 +91,8 @@ export interface DirectoryStudio extends Studio {
   tier: "verified" | "community";
   /** GameDevMap's own label, kept for traceability when tier === community. */
   gdmType?: string;
+  /** True when the animation competitive map contributed to this record. */
+  isAnimation?: boolean;
   otherOffices?: string[] | null;
   attribution?: { name: string; url: string; retrievedAt: string };
 }
@@ -134,6 +138,10 @@ export interface DirectoryResult {
     merged: number;
     total: number;
     countries: number;
+    /** Records that the animation map contributed to, new or merged. */
+    animation: number;
+    /** Animation records that resolved to a studio already in the directory. */
+    animationMerged: number;
   };
 }
 
@@ -208,23 +216,110 @@ export function buildStudioDirectory(): DirectoryResult {
     community.push(rec);
   }
 
-  const studios = [...byNorm.values(), ...community];
+  // 3. Fold in the animation competitive map.
+  //
+  // Several studios appear in BOTH datasets — Triggerfish, Kugali and Sea
+  // Monster are game-adjacent as well as animation houses — so these resolve
+  // against the existing records by normalised name and by URL exactly as the
+  // community entries do. A studio listed twice under slightly different names
+  // would inflate the directory and double-count in every derived figure.
+  const animationCommunity: DirectoryStudio[] = [];
+  let animationMerged = 0;
+  let animationTouched = 0;
+
+  for (const a of ANIMATION_STUDIO_PROFILES) {
+    const norm = normaliseName(a.name);
+    const url = normaliseUrl(a.website);
+    const existing =
+      byNorm.get(`${a.countryIso3}:${norm}`) ??
+      byNameOnly.get(norm) ??
+      communityByNorm.get(norm) ??
+      (url ? communityByUrl.get(url) : undefined);
+
+    if (existing) {
+      animationMerged++;
+      animationTouched++;
+      existing.isAnimation = true;
+      if (!existing.categories.includes("Animation")) {
+        existing.categories = [...existing.categories, "Animation"];
+      }
+      if (existing.name !== a.name && !existing.aliases?.includes(a.name)) {
+        existing.aliases = [...(existing.aliases ?? []), a.name];
+      }
+      for (const src of a.sources) {
+        if (!existing.sources.some((x) => x.url === src.url)) {
+          existing.sources = [...existing.sources, { url: src.url, label: src.label }];
+        }
+      }
+      continue;
+    }
+
+    animationTouched++;
+    const rec: DirectoryStudio = {
+      id: `anim-${a.id}`,
+      name: a.name,
+      countryIso3: a.countryIso3,
+      city: a.city,
+      foundedYear: a.founded,
+      website: url,
+      categories: ["Animation"],
+      // The animation map records a coarse size BAND, not a headcount, and this
+      // field is a number — so it stays null rather than being coerced into a
+      // false precision. The band is preserved in the notes.
+      teamSize: null,
+      engines: null,
+      notableGames: null,
+      status: a.status === "closed" ? "inactive" : a.status === "active" ? "active" : "unknown",
+      verified: a.provenance === "official",
+      // PROVENANCE IS NOT WIDENED IN TRANSIT. This directory defines
+      // "verified" as sourced to the organisation's OWN site and checked by us.
+      // Only the animation map's "official" tier meets that bar. Its
+      // "verified" tier is third-party (trade press, reference works), which is
+      // real evidence but not the organisation speaking for itself — so it
+      // lands in "community" here rather than being promoted by the move.
+      tier: a.provenance === "official" ? "verified" : "community",
+      gdmType: "Animation",
+      isAnimation: true,
+      otherOffices: null,
+      sources: a.sources.map((src) => ({ url: src.url, label: src.label })),
+      notes: [a.notes, a.sizeBand ? `Estimated size: ${a.sizeBand} people.` : null]
+        .filter(Boolean)
+        .join(" ") || undefined,
+    };
+
+    communityByNorm.set(norm, rec);
+    if (url) communityByUrl.set(url, rec);
+    animationCommunity.push(rec);
+  }
+
+  const studios = [...byNorm.values(), ...community, ...animationCommunity];
   return {
     studios,
     stats: {
-      verified: byNorm.size,
-      community: community.length,
+      verified: studios.filter((s) => s.tier === "verified").length,
+      community: studios.filter((s) => s.tier === "community").length,
       merged,
       total: studios.length,
       countries: new Set(studios.map((s) => s.countryIso3)).size,
+      animation: animationTouched,
+      animationMerged,
     },
   };
 }
 
-/** Count studios per country across the merged directory (for scoring). */
+/**
+ * Count studios per country across the merged directory (for scoring).
+ *
+ * EXCLUDES animation-only records. This feeds `studio_count`, which is the
+ * GAME-industry maturity input; animation has its own `animation_count`.
+ * Folding 48 animation houses into the game count would inflate game-industry
+ * maturity with companies that make no games, which is a different claim than
+ * the metric makes.
+ */
 export function directoryCountByCountry(): Record<string, number> {
   const out: Record<string, number> = {};
   for (const s of buildStudioDirectory().studios) {
+    if (s.isAnimation && s.categories.length === 1 && s.categories[0] === "Animation") continue;
     out[s.countryIso3] = (out[s.countryIso3] ?? 0) + 1;
   }
   return out;
