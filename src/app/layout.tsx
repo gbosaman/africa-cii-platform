@@ -47,9 +47,34 @@ export const viewport: Viewport = {
   themeColor: "#070a12",
 };
 
+/**
+ * Google AdSense publisher ID. Public by design — it ships in the client script
+ * on every page, so it is not a secret and belongs in the repo.
+ *
+ * The loader is gated to production deliberately. Loading AdSense on localhost
+ * and preview builds sends Google impressions from traffic that is you, and
+ * repeated self-generated impressions are what invalid-traffic enforcement is
+ * for. Vercel sets NODE_ENV=production, so the live site is unaffected.
+ */
+const ADSENSE_CLIENT = "ca-pub-1694999110168960";
+const ADSENSE_ENABLED = process.env.NODE_ENV === "production";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable} ${anton.variable} ${barlowCondensed.variable}`}>
+      {/* Google AdSense loader. Rendered as a plain <script> so the served
+          HTML carries the exact tag AdSense asks to be pasted into <head> —
+          next/script's strategies emit a preload plus a deferred injector
+          instead, which is harder for verification to see. */}
+      {ADSENSE_ENABLED && (
+        <head>
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        </head>
+      )}
       <body className="min-h-screen font-sans antialiased">
         <MetricDrawerProvider>
           <div className="flex min-h-screen">
