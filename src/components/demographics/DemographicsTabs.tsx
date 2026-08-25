@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GamerDemographics } from "@/components/demographics/GamerDemographics";
+import type { GamerCategory } from "@/lib/data/gamer-demographics";
 import { DemographicsView, type DemoCountry } from "@/components/demographics/DemographicsView";
 
 /**
@@ -12,7 +13,13 @@ import { DemographicsView, type DemoCountry } from "@/components/demographics/De
  * Blending them would let a survey of 2,500 people in four markets masquerade
  * as a continental fact, so they get separate tabs and separate provenance.
  */
-export function DemographicsTabs({ countries }: { countries: DemoCountry[] }) {
+export function DemographicsTabs({
+  countries,
+  occupation,
+}: {
+  countries: DemoCountry[];
+  occupation?: GamerCategory;
+}) {
   const [tab, setTab] = useState<"gamers" | "population">("gamers");
 
   return (
@@ -56,7 +63,7 @@ export function DemographicsTabs({ countries }: { countries: DemoCountry[] }) {
             <span className="text-slate-400">not published</span> and names the kind of source that
             would fill it, rather than being estimated into existence.
           </div>
-          <GamerDemographics />
+          <GamerDemographics occupation={occupation} />
         </>
       ) : (
         <DemographicsView countries={countries} />

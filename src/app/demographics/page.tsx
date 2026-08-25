@@ -4,6 +4,8 @@ import { COUNTRIES } from "@/lib/data/countries";
 import type { DemoCountry } from "@/components/demographics/DemographicsView";
 import { DemographicsTabs } from "@/components/demographics/DemographicsTabs";
 import { SectionHeader } from "@/components/ui/primitives";
+import { continentalOccupation } from "@/lib/scoring/occupation";
+import type { GamerCategory } from "@/lib/data/gamer-demographics";
 
 export const revalidate = 86400;
 export const metadata: Metadata = {
@@ -48,6 +50,63 @@ export default async function DemographicsPage() {
     return { iso3: c.iso3, iso2: c.iso2, name: c.name, region: c.region, values, years };
   });
 
+  // Occupation, computed from live ILO/World Bank labour data and normalised
+  // to one denominator (share of the 15+ population) so the buckets sum.
+  const occ = continentalOccupation(snap.metrics);
+  const pct = (v: number | null) => (v === null ? null : Math.round(v * 10) / 10);
+
+  const occupation: GamerCategory = {
+    id: "occupation",
+    title: "Occupation",
+    question: "What do people of working age across Africa actually do?",
+    icon: "building",
+    accent: "orange",
+    provenance: "partial",
+    headline: pct(occ.selfEmployed) === null ? null : `${pct(occ.selfEmployed)}%`,
+    headlineLabel: "Self-employed, share of 15+ population",
+    stats: [
+      {
+        label: "Employed — wage or salaried",
+        value: pct(occ.wageEmployed),
+        unit: "%",
+        sourceId: "worldbankIlo",
+        note: "Share of the 15+ population in paid employment for an employer.",
+      },
+      {
+        label: "Self-employed",
+        value: pct(occ.selfEmployed),
+        unit: "%",
+        sourceId: "worldbankIlo",
+        note: "Share of the 15+ population working for themselves — largely informal-sector work across Africa, not a startup indicator.",
+      },
+      {
+        label: "Unemployed and seeking work",
+        value: pct(occ.unemployed),
+        unit: "%",
+        sourceId: "worldbankIlo",
+        note: "Share of the 15+ population, NOT the headline unemployment rate (which is measured against the labour force and is therefore higher).",
+      },
+      {
+        label: "Not in the labour force — includes students",
+        value: pct(occ.notInLabourForce),
+        unit: "%",
+        sourceId: "worldbankIlo",
+        note: "Students, homemakers, retired and discouraged workers combined. Students cannot be isolated from this group with free data.",
+      },
+      {
+        label: "Youth (15–24) not in employment, education or training",
+        value: pct(occ.youthNeet),
+        unit: "%",
+        sourceId: "worldbankIlo",
+        note: "Different denominator — share of 15–24s, not of the whole 15+ population. Shown because it is the closest read on disconnected youth.",
+      },
+    ],
+    gap:
+      "These are working-age POPULATION figures, not gamers. No free survey publishes an occupation split for African gamers specifically — and since gamers skew 16–35 and urban, their mix almost certainly differs from the population average shown here.",
+    wouldNeed:
+      "A survey crossing gaming participation with employment status, or first-party publisher telemetry with registration data.",
+  };
+
   return (
     <div className="view-enter space-y-6">
       <SectionHeader
@@ -62,7 +121,7 @@ Two datasets, deliberately kept apart. <span className="text-slate-300">Gamer de
         statistics about everyone. Every figure carries its source, and every gap is labelled.
       </p>
 
-      <DemographicsTabs countries={countries} />
+      <DemographicsTabs countries={countries} occupation={occupation} />
     </div>
   );
 }

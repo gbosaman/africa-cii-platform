@@ -49,6 +49,18 @@ export const SURVEY_SOURCES: Record<string, SurveySource> = {
     methodology: "Mobile survey across six African markets.",
     licence: "Findings reported publicly; reproduced here with attribution.",
   },
+  worldbankIlo: {
+    id: "worldbankIlo",
+    name: "World Development Indicators (ILO modelled estimates)",
+    publisher: "World Bank / International Labour Organization",
+    sampleSize: "National labour force statistics, all 54 African countries",
+    markets: ["All 54 African countries"],
+    published: "2025",
+    url: "https://data.worldbank.org/indicator/SL.EMP.TOTL.SP.ZS",
+    methodology:
+      "ILO modelled estimates of employment, self-employment and labour force participation, re-expressed here as shares of the 15+ population so the categories share one denominator and sum to 100%.",
+    licence: "CC BY-4.0",
+  },
   newzooCarry1st: {
     id: "newzooCarry1st",
     name: "Africa Games Market Report",

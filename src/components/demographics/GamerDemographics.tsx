@@ -8,9 +8,6 @@ import {
   GAMER_CATEGORIES,
   MARKET_TOTALS,
   sourceFor,
-  PUBLISHED_COUNT,
-  PARTIAL_COUNT,
-  UNPUBLISHED_COUNT,
   type GamerCategory,
   type Provenance,
 } from "@/lib/data/gamer-demographics";
@@ -41,8 +38,14 @@ const BAR_TONE: Record<string, string> = {
   orange: "from-warn-600 to-warn-400",
 };
 
-export function GamerDemographics() {
+export function GamerDemographics({ occupation }: { occupation?: GamerCategory }) {
   const [open, setOpen] = useState<GamerCategory | null>(null);
+
+  // The occupation card is computed server-side from live labour data, so it
+  // replaces the static placeholder when available.
+  const categories = occupation
+    ? GAMER_CATEGORIES.map((c) => (c.id === "occupation" ? occupation : c))
+    : GAMER_CATEGORIES;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);
@@ -71,10 +74,10 @@ export function GamerDemographics() {
 
       {/* Provenance summary */}
       <div className="flex flex-wrap items-center gap-2">
-        <Pill tone="emerald">{PUBLISHED_COUNT} published</Pill>
-        <Pill tone="gold">{PARTIAL_COUNT} partial</Pill>
+        <Pill tone="emerald">{categories.filter((c) => c.provenance === "published").length} published</Pill>
+        <Pill tone="gold">{categories.filter((c) => c.provenance === "partial").length} partial</Pill>
         <span className="pill border-line bg-ink-800 text-slate-400">
-          {UNPUBLISHED_COUNT} not published
+          {categories.filter((c) => c.provenance === "unpublished").length} not published
         </span>
         <span className="ml-auto text-[11px] text-slate-500">
           Click any card for the full breakdown and its source
@@ -83,7 +86,7 @@ export function GamerDemographics() {
 
       {/* The eight categories */}
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
-        {GAMER_CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <button
             key={c.id}
             onClick={() => setOpen(c)}

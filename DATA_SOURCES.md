@@ -315,3 +315,32 @@ estimates**, labelled as such — they are not a census and not ours.
 
 Population demographics moved to a second tab. Blending the two would let a 2,500-person survey in
 four markets masquerade as a continental fact, so they stay separate with separate provenance.
+
+### Occupation — the denominator trap
+
+The occupation card fills the four requested buckets (employed, self-employed, unemployed, student)
+from **ILO modelled estimates via the World Bank**, for all 54 countries.
+
+The care this needed: the three obvious indicators are measured against **three different
+denominators**, and stacking them naively produces a chart that looks fine and means nothing.
+
+| Indicator | Native denominator |
+|---|---|
+| `SL.EMP.TOTL.SP.ZS` employment-to-population | % of the **15+ population** |
+| `SL.UEM.TOTL.ZS` unemployment rate | % of the **labour force** |
+| `SL.EMP.SELF.ZS` self-employed | % of **total employment** |
+
+Everything is therefore re-expressed as a share of the 15+ population — the only base on which the
+buckets can be compared or summed — using the identity `participation = employed + unemployed`.
+The four buckets then sum to 100% by construction, which `tests/occupation.test.ts` asserts.
+
+**Africa, population-weighted:** wage-employed 16.5% · **self-employed 45.2%** · unemployed 3.8% ·
+not in labour force 34.4%. The country spread is the finding: Nigeria is 68.9% self-employed against
+South Africa's 6.5%, while South Africa carries 18.0% unemployment against Nigeria's 2.5% — the
+informal/formal economy split, not a prosperity gap.
+
+**Two limits stated on the card:** "student" cannot be isolated from *not in the labour force*
+(which also holds homemakers, retired and discouraged workers) with free data, so the bucket is
+labelled honestly and youth NEET is shown alongside as the closest read on disconnected youth. And
+these are **working-age population figures, not gamers** — African gamers skew 16–35 and urban, so
+their mix almost certainly differs.
