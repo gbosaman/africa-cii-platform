@@ -1,0 +1,8 @@
+# ads.txt — IAB Tech Lab authorised digital sellers
+# Declares who is permitted to sell advertising inventory on this domain.
+# Reference: https://support.google.com/adsense/answer/12171612
+#
+# NOTE: the publisher ID below is the "pub-..." form. The AdSense script tag in
+# the site head uses "ca-pub-..." for the same account. Both are correct in
+# their own place; swapping them invalidates the file.
+google.com, pub-1694999110168960, DIRECT, f08c47fec0942fa0

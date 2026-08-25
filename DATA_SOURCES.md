@@ -707,6 +707,15 @@ the account, not the page. Vercel builds with `NODE_ENV=production`, so the live
 The publisher ID is **not a secret** — it ships in the client script on every page by design, so it
 lives in the repo rather than an env var.
 
-**Still outstanding for monetisation:** an `ads.txt` file at the domain root declaring this
-publisher ID. Without it AdSense reports "earnings at risk" and some buyers will not bid. It is one
-line, but it needs the live domain, so it is not added here.
+**`ads.txt`** lives at `public/ads.txt` and is served from the domain root as `text/plain`. It
+declares the same account as an authorised direct seller:
+
+```
+google.com, pub-1694999110168960, DIRECT, f08c47fec0942fa0
+```
+
+Two details that silently break this file, both covered by `tests/ads-txt.test.ts`. The publisher ID
+here is the bare **`pub-`** form, while the script tag uses **`ca-pub-`** for the same account —
+swapping them invalidates the record. And the two IDs live in different files, so a test asserts
+they match rather than trusting them to stay in step. The certification authority ID
+`f08c47fec0942fa0` is Google's, taken from their published guide rather than from memory.
