@@ -15,7 +15,8 @@
     "seed:entities": "tsx scripts/seed-entities.ts",
     "harvest:gamedevmap": "tsx scripts/harvest-gamedevmap.ts",
     "health:links": "tsx scripts/link-health.ts",
-    "harvest:hardware": "tsx scripts/harvest-hardware-retail.ts"
+    "harvest:hardware": "tsx scripts/harvest-hardware-retail.ts",
+    "ingest:steam": "tsx scripts/ingest-steam.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

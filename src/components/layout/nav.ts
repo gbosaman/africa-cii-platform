@@ -17,6 +17,7 @@ export const NAV_LINKS: NavLink[] = [
 
   { href: "/studios", label: "Studios", icon: "building", group: "Directories" },
   { href: "/games", label: "Games", icon: "controller", group: "Directories" },
+  { href: "/steam", label: "Steam Intelligence", icon: "controller", group: "Directories" },
   { href: "/animation", label: "Animation", icon: "film", group: "Directories" },
   { href: "/esports", label: "Esports", icon: "trophy", group: "Directories" },
 

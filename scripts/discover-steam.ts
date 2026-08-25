@@ -17,24 +17,23 @@ const DETAILS = "https://store.steampowered.com/api/appdetails";
 // Candidate African studios and titles to check. Expected developer strings are
 // matched case-insensitively against Steam's own `developers`/`publishers`.
 const CANDIDATES: { studio: string; iso3: string; titles: string[] }[] = [
-  { studio: "Free Lives", iso3: "ZAF", titles: ["Broforce", "GORN", "Terra Nil", "Anger Foot", "Genital Jousting", "Broforce Forever", "Stick It to the Stickman"] },
+  { studio: "The Brotherhood", iso3: "ZAF", titles: ["STASIS", "Beautiful Desolation", "STASIS: BONE TOTEM", "Cayne"] },
+  { studio: "Free Lives", iso3: "ZAF", titles: ["Cricket Through the Ages", "Broforce Forever", "Gorn"] },
   { studio: "Nyamakop", iso3: "ZAF", titles: ["Semblance", "Relooted"] },
-  { studio: "QCF Design", iso3: "ZAF", titles: ["Desktop Dungeons", "Desktop Dungeons Rewind"] },
+  { studio: "Thoopid", iso3: "ZAF", titles: ["Snailboy", "Rooftop Renegade"] },
+  { studio: "Sea Monster", iso3: "ZAF", titles: [] },
   { studio: "Kiro'o Games", iso3: "CMR", titles: ["Aurion Legacy of the Kori-Odan"] },
   { studio: "Celestial Games", iso3: "ZAF", titles: ["Toxic Bunny HD"] },
-  { studio: "Thoopid", iso3: "ZAF", titles: ["Snailboy", "Rushdown Revolt"] },
-  { studio: "24 Bit Games", iso3: "ZAF", titles: ["Hell Warders"] },
-  { studio: "Instinct Games", iso3: "EGY", titles: ["Freaking Meatbags", "Fear the Wolves"] },
-  { studio: "Digital Mania", iso3: "TUN", titles: ["Wall of Insanity", "Roadout"] },
-  { studio: "Rainmaker", iso3: "ZAF", titles: [] },
-  { studio: "Sea Monster", iso3: "ZAF", titles: [] },
-  { studio: "Kalabo", iso3: "ZMB", titles: [] },
-  { studio: "Lunar Ray Games", iso3: "ZAF", titles: ["Timespinner"] },
-  { studio: "Nommo", iso3: "NGA", titles: [] },
-  { studio: "Usiku Games", iso3: "KEN", titles: [] },
-  { studio: "Leti Arts", iso3: "GHA", titles: ["Africa's Legends"] },
-  { studio: "Maliyo Games", iso3: "NGA", titles: [] },
-  { studio: "Qene Games", iso3: "ETH", titles: ["Kukulu", "Gebeta"] },
+  { studio: "Fluffy Clouds", iso3: "ZAF", titles: [] },
+  { studio: "Retro Ninja", iso3: "ZAF", titles: [] },
+  { studio: "Nexus Interactive", iso3: "ZAF", titles: [] },
+  { studio: "Twisted Jenius", iso3: "ZAF", titles: [] },
+  { studio: "Mass Creation", iso3: "EGY", titles: [] },
+  { studio: "Instinct Games", iso3: "EGY", titles: ["Bloody Trapland"] },
+  { studio: "Rebel Twins", iso3: "EGY", titles: [] },
+  { studio: "Wizara", iso3: "KEN", titles: [] },
+  { studio: "Kucheza", iso3: "KEN", titles: [] },
+  { studio: "Salim Studios", iso3: "NGA", titles: [] },
 ];
 
 interface SearchItem { id: number; name: string }

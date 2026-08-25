@@ -228,3 +228,30 @@ revenue*; those come from paid market research, so this platform does not reprod
 The comparison answers a narrower question using indicators anyone can verify — and it still
 carries the core argument: Sub-Saharan Africa's population grows at ~2.4%/yr against a world
 average of ~0.9%, the fastest of any region, from the lowest GDP-per-capita base.
+
+## Steam intelligence
+
+`/steam` aggregates live Steam signals across every verified African-developed title, and
+`npm run ingest:steam` persists them as **snapshots** (`steam_snapshots`, migration `0003`).
+
+Snapshots accumulate rather than overwrite — `observed_at` is part of the key — because review
+scores drift, and keeping the history is what later answers "is this title gaining or losing
+goodwill". Same discipline as `metric_values`.
+
+**Catalogue growth.** Discovery run of Aug 2026 added **The Brotherhood** (Cape Town) with four
+titles — STASIS, CAYNE, BEAUTIFUL DESOLATION and STASIS: BONE TOTEM — plus Cricket Through the Ages
+(Free Lives). Every appid was confirmed against Steam's own `developers` field before entering the
+database; four candidates were rejected in the same run and are not present.
+
+**Current state:** 18 verified titles · 6 studios · 2 countries · **114,063 player reviews** ·
+93.9% mean positive rating weighted by review volume.
+
+**Two things the page is careful about:**
+- The mean rating is **weighted by review volume**. A plain average would let a 90% score on 76
+  reviews count as heavily as 96.9% on 60,959, flattering the catalogue.
+- Review counts are labelled a **proxy for audience, not sales** — only a fraction of players leave
+  one, so they support relative comparison and not revenue estimation.
+
+Data © Valve Corporation via the public Steam Web API, cached daily. Prices are US-region list
+prices and differ in local storefronts. An unreachable title records nothing rather than writing a
+zero.
