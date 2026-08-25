@@ -9,8 +9,12 @@ import {
   MARKET_TOTALS,
   sourceFor,
   type GamerCategory,
+  type GamerStat,
   type Provenance,
 } from "@/lib/data/gamer-demographics";
+
+/** Percentages and percentage points both scale 0..100, so both get a bar. */
+const isPctLike = (unit: GamerStat["unit"]) => unit === "%" || unit === "pp";
 
 const PROV_STYLE: Record<Provenance, string> = {
   published: "border-accent-500/40 bg-accent-500/10 text-accent-400",
@@ -38,14 +42,19 @@ const BAR_TONE: Record<string, string> = {
   orange: "from-warn-600 to-warn-400",
 };
 
-export function GamerDemographics({ occupation }: { occupation?: GamerCategory }) {
+export function GamerDemographics({
+  occupation,
+  settlement,
+}: {
+  occupation?: GamerCategory;
+  settlement?: GamerCategory;
+}) {
   const [open, setOpen] = useState<GamerCategory | null>(null);
 
-  // The occupation card is computed server-side from live labour data, so it
-  // replaces the static placeholder when available.
-  const categories = occupation
-    ? GAMER_CATEGORIES.map((c) => (c.id === "occupation" ? occupation : c))
-    : GAMER_CATEGORIES;
+  // Occupation and urban/rural are computed server-side from live World Bank
+  // series, so they replace their static placeholders when available.
+  const overrides: Record<string, GamerCategory | undefined> = { occupation, urban: settlement };
+  const categories = GAMER_CATEGORIES.map((c) => overrides[c.id] ?? c);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(null);
@@ -111,10 +120,10 @@ export function GamerDemographics({ occupation }: { occupation?: GamerCategory }
             <p className="mt-2 text-sm font-semibold text-slate-200">{c.title}</p>
 
             {/* Miniature bars so the card previews the shape of the data */}
-            {c.stats.filter((s) => s.value !== null && s.unit === "%").length > 0 && (
+            {c.stats.filter((s) => s.value !== null && isPctLike(s.unit)).length > 0 && (
               <div className="mt-3 space-y-1">
                 {c.stats
-                  .filter((s) => s.value !== null && s.unit === "%")
+                  .filter((s) => s.value !== null && isPctLike(s.unit))
                   .slice(0, 3)
                   .map((s) => (
                     <div key={s.label} className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700">
@@ -142,7 +151,7 @@ export function GamerDemographics({ occupation }: { occupation?: GamerCategory }
 function DrillDown({ category, onClose }: { category: GamerCategory; onClose: () => void }) {
   const sourceIds = [...new Set(category.stats.map((s) => s.sourceId))];
   const maxPct = Math.max(
-    ...category.stats.filter((s) => s.unit === "%" && s.value !== null).map((s) => s.value!),
+    ...category.stats.filter((s) => isPctLike(s.unit) && s.value !== null).map((s) => s.value!),
     100,
   );
 
@@ -181,12 +190,12 @@ function DrillDown({ category, onClose }: { category: GamerCategory; onClose: ()
                       <span className="figure shrink-0 text-sm font-bold text-accent-400">
                         {s.value === null
                           ? "N/A"
-                          : s.unit === "%"
-                            ? `${s.value}%`
+                          : isPctLike(s.unit)
+                            ? `${s.value}${s.unit}`
                             : fmtNumber(s.value)}
                       </span>
                     </div>
-                    {s.unit === "%" && s.value !== null && (
+                    {isPctLike(s.unit) && s.value !== null && (
                       <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink-700">
                         <div
                           className={`h-full rounded-full bg-gradient-to-r ${BAR_TONE[category.accent]}`}

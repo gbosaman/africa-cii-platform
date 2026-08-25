@@ -5,6 +5,7 @@ import type { DemoCountry } from "@/components/demographics/DemographicsView";
 import { DemographicsTabs } from "@/components/demographics/DemographicsTabs";
 import { SectionHeader } from "@/components/ui/primitives";
 import { continentalOccupation } from "@/lib/scoring/occupation";
+import { continentalSettlement, widestElectricityGaps } from "@/lib/scoring/settlement";
 import type { GamerCategory } from "@/lib/data/gamer-demographics";
 
 export const revalidate = 86400;
@@ -107,6 +108,74 @@ export default async function DemographicsPage() {
       "A survey crossing gaming participation with employment status, or first-party publisher telemetry with registration data.",
   };
 
+  // Urban / rural, with the electrification gap that decides whether rural
+  // populations can play at all. Electrification is weighted by the population
+  // it describes, not by total population.
+  const st = continentalSettlement(snap.metrics);
+  const gaps = widestElectricityGaps(snap.metrics, 4);
+  // Below 10% a whole-number round turns 0.8% into "1%", which reads as a
+  // rounding artefact rather than near-total absence of grid power.
+  const acc = (v: number | null) => (v === null ? "N/A" : `${v < 10 ? v.toFixed(1) : v.toFixed(0)}%`);
+
+  const settlement: GamerCategory = {
+    id: "urban",
+    title: "Urban vs rural",
+    question: "Where do people live, and where is playing even possible?",
+    icon: "globe",
+    accent: "violet",
+    provenance: "partial",
+    headline: pct(st.electricityGap) === null ? null : `${pct(st.electricityGap)}pp`,
+    headlineLabel: "Urban–rural electrification gap",
+    stats: [
+      {
+        label: "Living in urban areas",
+        value: pct(st.urbanPct),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: st.urbanPopulation ? `About ${Math.round(st.urbanPopulation / 1e6)}M people.` : undefined,
+      },
+      {
+        label: "Living in rural areas",
+        value: pct(st.ruralPct),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: st.ruralPopulation ? `About ${Math.round(st.ruralPopulation / 1e6)}M people.` : undefined,
+      },
+      {
+        label: "Electricity access — urban",
+        value: pct(st.electricityUrban),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: "Weighted by urban population.",
+      },
+      {
+        label: "Electricity access — rural",
+        value: pct(st.electricityRural),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: "Weighted by rural population. Power is the gate before device, data or content — without it there is no play.",
+      },
+      {
+        label: "Urban population growth per year",
+        value: pct(st.urbanGrowth),
+        unit: "%",
+        sourceId: "worldbankWdi",
+        note: "Cities absorb people faster than the population grows, so the reachable audience expands through migration as well as birth.",
+      },
+      ...gaps.map((g) => ({
+        label: `Widest gap — ${g.name}: urban ${acc(g.electricityUrban)} vs rural ${acc(g.electricityRural)}`,
+        value: pct(g.electricityGap),
+        unit: "pp" as const,
+        sourceId: "worldbankWdi",
+        note: "Percentage-point gap between urban and rural electrification.",
+      })),
+    ],
+    gap:
+      "These are POPULATION figures, not gamers. No free survey splits African gamers by settlement type — and mobile-survey recruitment systematically under-reaches rural respondents, so even a commissioned study needs careful weighting before its urban/rural split can be trusted.",
+    wouldNeed:
+      "A survey cut by settlement type with rural weighting, or telemetry geolocated at a finer grain than country level.",
+  };
+
   return (
     <div className="view-enter space-y-6">
       <SectionHeader
@@ -121,7 +190,7 @@ Two datasets, deliberately kept apart. <span className="text-slate-300">Gamer de
         statistics about everyone. Every figure carries its source, and every gap is labelled.
       </p>
 
-      <DemographicsTabs countries={countries} occupation={occupation} />
+      <DemographicsTabs countries={countries} occupation={occupation} settlement={settlement} />
     </div>
   );
 }

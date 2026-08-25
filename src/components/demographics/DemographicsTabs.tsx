@@ -16,9 +16,11 @@ import { DemographicsView, type DemoCountry } from "@/components/demographics/De
 export function DemographicsTabs({
   countries,
   occupation,
+  settlement,
 }: {
   countries: DemoCountry[];
   occupation?: GamerCategory;
+  settlement?: GamerCategory;
 }) {
   const [tab, setTab] = useState<"gamers" | "population">("gamers");
 
@@ -63,7 +65,7 @@ export function DemographicsTabs({
             <span className="text-slate-400">not published</span> and names the kind of source that
             would fill it, rather than being estimated into existence.
           </div>
-          <GamerDemographics occupation={occupation} />
+          <GamerDemographics occupation={occupation} settlement={settlement} />
         </>
       ) : (
         <DemographicsView countries={countries} />

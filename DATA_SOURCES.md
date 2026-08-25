@@ -278,7 +278,7 @@ lie coming from us.
 | Education | `SE.ADT.LITR.ZS`, `SE.SEC.ENRR`, `SE.TER.ENRR` |
 | Occupation / employment | `SL.TLF.CACT.ZS`, `SL.UEM.TOTL.ZS`, `SL.UEM.1524.ZS` |
 | Device ownership | `IT.NET.USER.ZS`, `IT.CEL.SETS.P2`, `EG.ELC.ACCS.ZS` |
-| Urban vs rural | `SP.URB.TOTL.IN.ZS`, `SP.RUR.TOTL.ZS` |
+| Urban vs rural | `SP.URB.TOTL.IN.ZS`, `SP.RUR.TOTL.ZS`, `SP.URB.TOTL`, `SP.URB.GROW`, `EG.ELC.ACCS.UR.ZS`, `EG.ELC.ACCS.RU.ZS` |
 
 The eighth — **daily play hours, genre preference and gamer gender split** — genuinely requires
 primary research, so the page carries an explicit N/A panel saying so instead of estimating.
@@ -344,3 +344,40 @@ informal/formal economy split, not a prosperity gap.
 labelled honestly and youth NEET is shown alongside as the closest read on disconnected youth. And
 these are **working-age population figures, not gamers** — African gamers skew 16–35 and urban, so
 their mix almost certainly differs.
+
+### Urban vs rural — the weighting trap, and why electrification is the real story
+
+The urban/rural card is built from four World Bank series, all keyless, all CC BY-4.0, all with
+complete African coverage (verified against the live API before use):
+
+| Indicator | What it gives |
+|---|---|
+| `SP.URB.TOTL` urban population | Absolute urban headcount, used to derive rural as the residual |
+| `SP.URB.GROW` urban population growth | Annual % — how fast cities are absorbing people |
+| `EG.ELC.ACCS.UR.ZS` access to electricity, urban | % of the **urban** population |
+| `EG.ELC.ACCS.RU.ZS` access to electricity, rural | % of the **rural** population |
+
+**The population split is the easy half.** The half that matters for this platform is
+electrification: a rural population with 1% grid access cannot play games regardless of how young,
+connected or numerous it is. Power is the gate before device, before data, before content — so the
+card leads with the gap, not with the urban share.
+
+**The weighting trap.** Urban electrification must be weighted by **urban** population and rural
+electrification by **rural** population. Weighting both by total population lets a heavily-urban
+country drag the rural average toward a figure no rural person experiences.
+`tests/settlement.test.ts` asserts this directly, including a case that computes the wrong,
+total-population-weighted number and requires the output not to equal it.
+
+**Africa, correctly weighted:** urban 46.4% (717M) · rural 53.6% (829M) · urban electrification
+85.8% against rural **43.1%** — a **42.8 percentage-point gap**. Cities grow 3.2% a year, so the
+reachable audience expands through migration as well as birth.
+
+The country spread is again the finding, and it is severe: **Libya** runs 100% urban access against
+0.8% rural (99.2pp), **Mauritania** 94.2% against 0.8%, **Equatorial Guinea** 89.3% against 5.1%,
+**Angola** 78.0% against 1.3%. In those four markets the rural population is, for gaming purposes,
+almost entirely unreachable — and a national "electricity access" average conceals that completely.
+
+**The limit stated on the card:** these are **population** figures, not gamers. No free survey
+splits African gamers by settlement type, and mobile-survey recruitment systematically under-reaches
+rural respondents — so even a commissioned study would need careful rural weighting before its
+urban/rural split could be trusted. The card is marked *partial* for that reason, not *published*.

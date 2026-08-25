@@ -61,6 +61,18 @@ export const SURVEY_SOURCES: Record<string, SurveySource> = {
       "ILO modelled estimates of employment, self-employment and labour force participation, re-expressed here as shares of the 15+ population so the categories share one denominator and sum to 100%.",
     licence: "CC BY-4.0",
   },
+  worldbankWdi: {
+    id: "worldbankWdi",
+    name: "World Development Indicators — urbanisation & energy access",
+    publisher: "World Bank",
+    sampleSize: "National statistics, all 54 African countries",
+    markets: ["All 54 African countries"],
+    published: "2025",
+    url: "https://data.worldbank.org/indicator/EG.ELC.ACCS.RU.ZS",
+    methodology:
+      "Urban population (SP.URB.TOTL), urban growth (SP.URB.GROW) and access to electricity split urban (EG.ELC.ACCS.UR.ZS) / rural (EG.ELC.ACCS.RU.ZS), compiled by the World Bank from national censuses, household surveys and UN World Urbanization Prospects. Aggregated here with each electrification rate weighted by the population it describes — urban rates by urban population, rural rates by rural population — never by total population.",
+    licence: "CC BY-4.0",
+  },
   newzooCarry1st: {
     id: "newzooCarry1st",
     name: "Africa Games Market Report",
@@ -78,9 +90,9 @@ export const SURVEY_SOURCES: Record<string, SurveySource> = {
 
 export interface GamerStat {
   label: string;
-  /** Percentage or absolute value. null = not published. */
+  /** Percentage, percentage points, or absolute value. null = not published. */
   value: number | null;
-  unit: "%" | "people" | "hours";
+  unit: "%" | "pp" | "people" | "hours";
   sourceId: string;
   note?: string;
 }
