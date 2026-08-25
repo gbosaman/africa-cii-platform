@@ -13,6 +13,13 @@ import {
   type SoftwareCategory,
 } from "@/lib/advisor/software";
 import {
+  DISTRIBUTION_CHANNELS,
+  ACCESS_META,
+  distributionEntryCost,
+  distributionAnnualCost,
+  type DistributionKind,
+} from "@/lib/advisor/distribution";
+import {
   opportunityStatus,
   daysUntil,
   type FundingOpportunity,
@@ -66,6 +73,7 @@ export function AdvisorForm({
     countryIso3: "NGA",
     software: ["unity", "blender", "krita"],
     hardwareTier: "mid-3d",
+    distribution: ["google_play", "youtube"],
     indieEligible: true,
   });
   const [submitted, setSubmitted] = useState(false);
@@ -93,6 +101,14 @@ export function AdvisorForm({
   const set = <K extends keyof AdvisorInput>(k: K, v: AdvisorInput[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const toggleDistribution = (id: string) =>
+    setForm((f) => ({
+      ...f,
+      distribution: f.distribution.includes(id)
+        ? f.distribution.filter((x) => x !== id)
+        : [...f.distribution, id],
+    }));
+
   const toggleSoftware = (id: string) =>
     setForm((f) => ({
       ...f,
@@ -101,6 +117,8 @@ export function AdvisorForm({
 
   const softwarePerSeat = softwareAnnualCost(form.software, form.indieEligible);
   const selectedTier = HARDWARE_BY_ID[form.hardwareTier];
+  const distEntry = distributionEntryCost(form.distribution);
+  const distAnnual = distributionAnnualCost(form.distribution);
 
   const maxLine = Math.max(...result.budget.lines.map((l) => l.amountUsd), 1);
 
@@ -288,6 +306,82 @@ export function AdvisorForm({
             )}
           </label>
 
+          {/* Distribution — multiple selection, grouped by how you actually get in */}
+          <div className="sm:col-span-2">
+            <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+              <span className="text-xs text-slate-400">
+                Distribution method <span className="text-slate-600">· select all that apply</span>
+              </span>
+              <span className="figure text-[11px] text-slate-500">
+                {form.distribution.length} selected · ${distEntry.toLocaleString()} one-off
+                {distAnnual > 0 ? ` + $${distAnnual.toLocaleString()}/yr` : ""}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {(["mobile", "pc", "console", "video", "festival"] as DistributionKind[]).map((kind) => {
+                const rows = DISTRIBUTION_CHANNELS.filter((c) => c.kind === kind);
+                if (rows.length === 0) return null;
+                return (
+                  <div key={kind} className="flex flex-wrap items-center gap-1.5">
+                    <span className="w-20 shrink-0 text-[10px] uppercase tracking-wider text-slate-600">
+                      {kind}
+                    </span>
+                    {rows.map((c) => {
+                      const on = form.distribution.includes(c.id);
+                      // entryUsd === 0 means genuinely free. entryUsd === null
+                      // means NO PUBLISHED FEE — console dev kits are under NDA
+                      // and festival fees are set per festival. Rendering those
+                      // as "free" would be the zero-vs-unknown error, and here
+                      // it would understate a real cost to someone budgeting.
+                      const cost =
+                        c.entryUsd !== null
+                          ? c.entryUsd === 0
+                            ? "free"
+                            : `$${c.entryUsd}`
+                          : c.annualUsd !== null
+                            ? `$${c.annualUsd}/yr`
+                            : "fee not published";
+                      const costTone =
+                        cost === "free"
+                          ? "text-emerald2-400"
+                          : cost === "fee not published"
+                            ? "text-slate-600"
+                            : "text-slate-500";
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => toggleDistribution(c.id)}
+                          title={`${ACCESS_META[c.access].blurb} ${c.entryBasis} ${c.cutNote}`}
+                          className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                            on
+                              ? "border-gold-500/50 bg-gold-500/15 text-gold-300"
+                              : "border-line bg-ink-800 text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          {c.name}
+                          {c.access === "commissioned" && (
+                            <span className="ml-1.5 text-[10px] text-violet2-400">not self-serve</span>
+                          )}
+                          {c.access !== "commissioned" && (
+                            <span className={`figure ml-1.5 text-[10px] ${costTone}`}>{cost}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+              These are not the same kind of thing.{" "}
+              <span className="text-accent-400">Self-serve</span> means you can publish yourself
+              today for a published fee. <span className="text-warn-400">Gated</span> means approval
+              or curation stands in front. <span className="text-violet2-400">Commissioned only</span>{" "}
+              means you cannot choose it at all — Netflix does not accept unsolicited submissions, so
+              it is an outcome to work towards, never a release plan.
+            </p>
+          </div>
+
         </div>
 
         <button
@@ -411,6 +505,68 @@ export function AdvisorForm({
               ))}
             </ol>
           </Panel>
+
+          {/* ---------------- Distribution reality ---------------- */}
+          {form.distribution.length > 0 && (
+            <Panel>
+              <SectionHeader eyebrow="How the work reaches people" title="Distribution plan" />
+
+              {result.distributionPlan.selfServe.length > 0 && (
+                <p className="mb-3 text-sm text-slate-300">
+                  <span className="text-accent-400">Publishable yourself:</span>{" "}
+                  {result.distributionPlan.selfServe.join(", ")} —{" "}
+                  {usd(result.distributionPlan.entryUsd)} one-off
+                  {result.distributionPlan.annualUsd > 0
+                    ? ` plus ${usd(result.distributionPlan.annualUsd)}/yr`
+                    : ""}
+                  .
+                </p>
+              )}
+
+              {result.distributionPlan.worstCutPct !== null && (
+                <div className="mb-3 rounded-lg border border-line bg-ink-850/60 p-3">
+                  <p className="text-sm text-slate-300">
+                    Steepest platform cut:{" "}
+                    <span className="figure font-bold text-gold-400">
+                      {result.distributionPlan.worstCutPct}%
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                    You keep ${100 - result.distributionPlan.worstCutPct} of every $100 gross before
+                    tax, refunds, payment fees and user acquisition. Model revenue net of this — a
+                    plan budgeted against gross overstates runway by roughly a third.
+                  </p>
+                </div>
+              )}
+
+              {result.distributionPlan.commissioned.map((c) => (
+                <div
+                  key={c.name}
+                  className="mb-2 rounded-lg border border-violet2-500/30 bg-violet2-500/10 p-3"
+                >
+                  <p className="text-sm font-semibold text-violet2-300">
+                    {c.name} — not something you can choose
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{c.note}</p>
+                </div>
+              ))}
+
+              {result.distributionPlan.mismatched.map((c) => (
+                <div key={c.name} className="mb-2 rounded-lg border border-warn-500/30 bg-warn-500/10 p-3">
+                  <p className="text-sm font-semibold text-warn-400">
+                    {c.name} does not fit a {form.projectType} project
+                  </p>
+                  <p className="mt-1 text-[11px] text-slate-400">It suits {c.fits}.</p>
+                </div>
+              ))}
+
+              <p className="mt-3 border-t border-line pt-2 text-[11px] leading-relaxed text-slate-500">
+                Fees are published list prices, dated and sourced in the distribution catalogue.
+                Festival submission fees and console dev-kit costs are excluded because no rate is
+                published — get those per festival and per platform.
+              </p>
+            </Panel>
+          )}
 
           {/* ---------------- Risks & next steps ---------------- */}
           <div className="grid gap-6 lg:grid-cols-2">

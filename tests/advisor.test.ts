@@ -17,6 +17,7 @@ const base: AdvisorInput = {
   countryIso3: "NGA",
   software: ["unity", "blender"],
   hardwareTier: "mid-3d",
+  distribution: ["google_play"],
   indieEligible: false,
 };
 const ctx = { gdpPerCapita: 2000, tariffPct: 10, countryName: "Nigeria" };

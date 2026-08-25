@@ -545,3 +545,42 @@ The ranking therefore still uses the original curated seed, and `animationProfil
 carries the reasoning at the call site. A defensible replacement would weight by documented
 international credits or tier rather than by row count; that measure does not exist yet, and
 inventing one to justify the wiring would be the same mistake in a different costume.
+
+### Studio advisor — distribution channels
+
+The advisor takes a distribution selection (YouTube, Netflix, Prime Video, film festivals, Google
+Play, Apple App Store, PC/Steam, console) and folds it into the budget, the risks and the next
+steps. Fees are published list prices, dated `2026-08-25`, each carrying its source.
+
+**These are not the same kind of thing, and the form says so.** Channels are classed by how you
+actually get in:
+
+| Access | Meaning | Channels |
+|---|---|---|
+| Self-serve | Publish yourself today for a published fee | YouTube, Google Play, App Store, Steam |
+| Gated | Open in principle, approval or curation in front | Prime Video Direct, film festivals, console |
+| Commissioned only | You cannot choose it; someone chooses you | Netflix |
+
+**Netflix is the case that matters.** It does not accept unsolicited self-submissions, so "we'll
+release on Netflix" is an outcome of being commissioned, not a step in a plan. Listing it beside
+Google Play — where $25 and a build genuinely gets you listed — would flatter the plan and mislead
+the person writing it. Selecting it raises a risk explaining that the realistic route is a
+co-production with a studio that already holds the relationship, as Supa Team 4 reached Netflix
+through Triggerfish with Cake Entertainment.
+
+Prime Video is deliberately *not* grouped with Netflix: Prime Video Direct is a real self-submission
+route — it is how AnimaxFYB reached the platform from Accra — though Amazon no longer accepts
+unsolicited non-fiction or short-form through it, and pays per hour streamed rather than a
+percentage, so revenue cannot be projected the way a store cut can.
+
+**Verified fees:** Google Play $25 one-time; Apple Developer Program $99/year; Steam Direct $100 per
+title, recoupable at $1,000 of adjusted gross revenue; YouTube free to upload. **Cuts:** Play and
+App Store 15% under $1M then 30%; Steam 30/25/20 by lifetime revenue; YouTube keeps 45% of long-form
+ad revenue. Console dev-kit costs and festival submission fees are **null, not zero** — the first is
+under NDA, the second is set per festival — and the UI renders those as *"fee not published"* rather
+than *"free"*. That distinction was a live bug caught during verification: rendering an unpublished
+fee as free understates a real cost to someone budgeting against it.
+
+One forward-looking note the advisor surfaces: the YouTube Partner Program threshold rises on
+1 February 2027 to 8,000 watch hours for new applicants, so a studio starting now should plan
+against the higher bar rather than today's 4,000.

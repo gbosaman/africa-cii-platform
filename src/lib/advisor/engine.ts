@@ -6,6 +6,16 @@ import {
   HARDWARE_BY_ID,
   SOFTWARE_BY_ID,
 } from "@/lib/advisor/software";
+// `import type` on the other side keeps this cycle type-only, so there is no
+// runtime circular import.
+import {
+  DISTRIBUTION_BY_ID,
+  distributionEntryCost,
+  distributionAnnualCost,
+  worstCutPct,
+  commissionedOnly,
+  mismatchedChannels,
+} from "@/lib/advisor/distribution";
 
 // ---------------------------------------------------------------------------
 // Studio / project advisor.
@@ -40,6 +50,8 @@ export interface AdvisorInput {
   software: string[];
   /** Selected hardware tier id. */
   hardwareTier: string;
+  /** Selected distribution channel ids (see advisor/distribution.ts). */
+  distribution: string[];
   /** Whether the studio qualifies for cheaper indie licence tiers. */
   indieEligible: boolean;
 }
@@ -77,6 +89,17 @@ export interface AdvisorResult {
   toolSaving: { savingUsd: number; swaps: { from: string; to: string; saves: number }[] };
   /** Per-seat annual licence cost for the chosen stack. */
   softwarePerSeatUsd: number;
+  /** What the chosen distribution channels cost and take. */
+  distributionPlan: {
+    entryUsd: number;
+    annualUsd: number;
+    worstCutPct: number | null;
+    /** Channels selected that cannot be planned for — Netflix and the like. */
+    commissioned: { name: string; note: string }[];
+    /** Channels that do not suit the project type. */
+    mismatched: { name: string; fits: string }[];
+    selfServe: string[];
+  };
 }
 
 const TEAM_RANGE: Record<TeamSize, { min: number; max: number; typical: number }> = {
@@ -157,6 +180,13 @@ export function runAdvisor(
   const marketingRate = input.projectType === "Game" ? 0.18 : 0.12;
   const marketing = Math.round((labour + hardware) * marketingRate);
 
+  // --- Distribution ---
+  const distEntry = distributionEntryCost(input.distribution);
+  const distAnnual = distributionAnnualCost(input.distribution);
+  const years = Math.max(1, durationMonths / 12);
+  const distTotal = Math.round(distEntry + distAnnual * years);
+  const distNames = input.distribution.map((id) => DISTRIBUTION_BY_ID[id]?.name ?? id);
+
   const lines: BudgetLine[] = [
     {
       label: "Team",
@@ -192,6 +222,18 @@ export function runAdvisor(
       amountUsd: marketing,
       basis: `${Math.round(marketingRate * 100)}% of team + hardware cost`,
     },
+    {
+      label: "Platform access fees",
+      amountUsd: distTotal,
+      basis:
+        input.distribution.length === 0
+          ? "No distribution channels selected"
+          : `${distNames.join(", ")} — $${distEntry.toLocaleString()} one-off` +
+            (distAnnual > 0
+              ? ` + $${distAnnual.toLocaleString()}/yr over ${years.toFixed(1)} yr`
+              : "") +
+            ". Published list fees only; festival submissions and console dev kits are not included because no rate is published.",
+    },
   ];
 
   const totalUsd = lines.reduce((s, l) => s + l.amountUsd, 0);
@@ -221,6 +263,23 @@ export function runAdvisor(
       `Duration derives from team size, adjusted ×${DIMENSION_MULTIPLIER[input.dimension]} for ${input.dimension} and ×${TYPE_MULTIPLIER[input.projectType]} for ${input.projectType}.`,
       `The range shown is −30% / +60% around the model. Creative projects overrun far more often than they underrun, which is why the range is asymmetric.`,
     ],
+    distributionPlan: {
+      entryUsd: distEntry,
+      annualUsd: distAnnual,
+      worstCutPct: worstCutPct(input.distribution),
+      commissioned: commissionedOnly(input.distribution).map((c) => ({
+        name: c.name,
+        note: c.note,
+      })),
+      mismatched: mismatchedChannels(input.distribution, input.projectType).map((c) => ({
+        name: c.name,
+        fits: c.fitsTypes.join(", "),
+      })),
+      selfServe: input.distribution
+        .map((id) => DISTRIBUTION_BY_ID[id])
+        .filter((c) => c?.access === "self_serve")
+        .map((c) => c!.name),
+    },
     machineMonthsOfIncome: monthsOfIncome(perMachine, ctx.gdpPerCapita),
     toolSaving,
     softwarePerSeatUsd,
@@ -275,6 +334,36 @@ function buildMilestones(input: AdvisorInput, total: number): Milestone[] {
 
 function buildRisks(input: AdvisorInput, ctx: { gdpPerCapita: number | null; tariffPct: number | null; countryName: string }): string[] {
   const risks: string[] = [];
+
+  // Distribution risks first — a plan that assumes an unreachable channel is
+  // wrong at the foundation, not at the margin.
+  for (const c of commissionedOnly(input.distribution)) {
+    risks.push(
+      `${c.name} is not a channel you can choose. It commissions or licenses and does not accept unsolicited submissions, so treating it as a release plan will leave you with no route to an audience. ${c.note}`,
+    );
+  }
+  for (const c of mismatchedChannels(input.distribution, input.projectType)) {
+    risks.push(
+      `${c.name} is a poor fit for a ${input.projectType} project — it suits ${c.fitsTypes.join(", ")}. Either the channel or the project framing needs to change.`,
+    );
+  }
+  const cut = worstCutPct(input.distribution);
+  if (cut !== null && cut >= 30) {
+    risks.push(
+      `Your steepest platform cut is ${cut}%. Model revenue net of it: at ${cut}% you keep $${(100 - cut).toFixed(0)} of every $100 of gross, before tax, refunds, payment fees or user acquisition. Plans that budget against gross revenue overstate runway by roughly a third.`,
+    );
+  }
+  if (input.distribution.length === 0) {
+    risks.push(
+      "No distribution channel selected. How the work reaches an audience decides the budget, the build targets and the schedule — decide it now rather than after production, when changing it is expensive.",
+    );
+  }
+  if (input.distribution.includes("console") && input.teamSize === "0-2") {
+    risks.push(
+      "Console platforms gate on approval and generally favour a shipped track record. At 1–2 people with no released title, plan console as a second release after you have shipped somewhere self-serve.",
+    );
+  }
+
   if (input.dimension === "3D") {
     risks.push(
       "3D asset production is the most common source of overrun. Lock the art pipeline in pre-production and consider outsourcing overflow rather than hiring for a peak you cannot sustain.",
@@ -313,7 +402,32 @@ function buildRisks(input: AdvisorInput, ctx: { gdpPerCapita: number | null; tar
 
 function buildNextSteps(input: AdvisorInput): string[] {
   const isGame = input.projectType === "Game";
+  const selfServe = input.distribution
+    .map((id) => DISTRIBUTION_BY_ID[id])
+    .filter((c) => c?.access === "self_serve");
+  const gated = input.distribution
+    .map((id) => DISTRIBUTION_BY_ID[id])
+    .filter((c) => c?.access === "gated");
+
+  const distSteps: string[] = [];
+  if (selfServe.length > 0) {
+    distSteps.push(
+      `Open your ${selfServe.map((c) => c!.name).join(" and ")} developer account${selfServe.length > 1 ? "s" : ""} now, before you need ${selfServe.length > 1 ? "them" : "it"}. Verification and payout setup take longer than the fee suggests, and a store page you can point funders at is worth more than the listing itself.`,
+    );
+  }
+  if (gated.length > 0) {
+    distSteps.push(
+      `${gated.map((c) => c!.name).join(" and ")} gate on approval or curation. Find the current submission window and requirements before you build to them — categories open and close, and the terms change.`,
+    );
+  }
+  if (commissionedOnly(input.distribution).length > 0) {
+    distSteps.push(
+      "For the commissioned platforms you selected, the realistic route is a co-production with a studio that already holds the relationship. Identify three such studios on the animation competitive map and approach them with a finished pilot, not a pitch.",
+    );
+  }
+
   return [
+    ...distSteps,
     "Write a one-page scope statement: what is in, what is explicitly out, and what you would cut first under pressure.",
     isGame
       ? "Build the vertical slice before raising. Nearly every fund below asks to see something playable."
