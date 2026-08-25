@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Archivo, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description:
     "Verified, decision-ready intelligence on Africa's games, esports and animation economy — country, market, studio and game level.",
   metadataBase: resolveSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
+  manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  // Tints the browser chrome on mobile to match the app background.
+  themeColor: "#070a12",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
