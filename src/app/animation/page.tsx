@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ANIMATION_STUDIOS } from "@/lib/data/creative";
+import { ANIMATION_STUDIO_PROFILES } from "@/lib/data/animation-studios";
+import { CompetitiveMap } from "@/components/animation/CompetitiveMap";
 import { getIntelligence } from "@/lib/data/intelligence";
 import { COUNTRY_BY_ISO3, flagEmoji } from "@/lib/data/countries";
 import { SectionHeader, Pill, Panel, ScoreBar, DataUnavailable } from "@/components/ui/primitives";
@@ -23,24 +25,29 @@ export default async function AnimationPage() {
   const intel = await getIntelligence();
   const ranking = intel.scores.animation.slice(0, 8);
 
-  const byCountry = ANIMATION_STUDIOS.reduce<Record<string, number>>((acc, a) => {
+  const byCountry = ANIMATION_STUDIO_PROFILES.reduce<Record<string, number>>((acc, a) => {
     acc[a.countryIso3] = (acc[a.countryIso3] ?? 0) + 1;
     return acc;
   }, {});
+  const withPlatform = ANIMATION_STUDIO_PROFILES.filter((a) =>
+    Object.values(a.distribution).some((v) => v === true),
+  ).length;
+  const withIp = ANIMATION_STUDIO_PROFILES.filter((a) => a.originalIp.length > 0).length;
   const crossover = ANIMATION_STUDIOS.filter((a) => a.ipCrossover);
 
   return (
     <div className="space-y-6">
       <SectionHeader eyebrow="Phase 3 · one creative ecosystem" title="Animation industry" />
       <div className="flex flex-wrap gap-2">
-        <Pill tone="gold">{ANIMATION_STUDIOS.length} studios</Pill>
+        <Pill tone="gold">{ANIMATION_STUDIO_PROFILES.length} studios</Pill>
         <Pill>{Object.keys(byCountry).length} countries</Pill>
-        <Pill tone="emerald">Source-cited</Pill>
+        <Pill tone="emerald">{withPlatform} with a platform credit</Pill>
+        <Pill>{withIp} with original IP</Pill>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-6">
         {/* Animation-market ranking */}
-        <Panel className="lg:col-span-2">
+        <Panel>
           <SectionHeader eyebrow="Best for animation" title="Country ranking" />
           <p className="mb-3 text-xs text-slate-500">
             Talent, industry maturity (verified studio counts), distribution & investment.
@@ -63,30 +70,15 @@ export default async function AnimationPage() {
           </ol>
         </Panel>
 
-        {/* Studio directory */}
-        <Panel className="lg:col-span-3">
-          <SectionHeader eyebrow="Directory" title="Animation studios" />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {ANIMATION_STUDIOS.map((a) => {
-              const c = COUNTRY_BY_ISO3[a.countryIso3]!;
-              return (
-                <Link key={a.id} href={`/animation/${a.id}`} className="block rounded-lg border border-line bg-ink-850/60 p-4 transition-colors hover:border-gold-500/30">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-100">{a.name}</p>
-                    {a.verified ? <Pill tone="emerald">✓</Pill> : <Pill tone="gold">⚠</Pill>}
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {flagEmoji(c.iso2)} {a.city ?? "—"}{a.foundedYear ? ` · est. ${a.foundedYear}` : ""}
-                  </p>
-                  {a.ipCrossover && (
-                    <span className="mt-2 inline-block rounded border border-emerald2-500/25 bg-emerald2-500/10 px-1.5 py-0.5 text-[10px] text-emerald2-300">
-                      {CROSSOVER_LABEL[a.ipCrossover]}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+        {/* Competitive map */}
+        <Panel>
+          <SectionHeader eyebrow="Competitive map" title="Animation studios" />
+          <p className="mb-3 text-xs leading-relaxed text-slate-500">
+            Every row carries its sources. Fields are filled only where a source states them —
+            blanks mean <span className="text-slate-400">not documented</span>, never
+            &ldquo;no&rdquo;.
+          </p>
+          <CompetitiveMap studios={ANIMATION_STUDIO_PROFILES} />
         </Panel>
       </div>
 

@@ -491,3 +491,57 @@ exceeds the Next data-cache ceiling of 2MB — so the response was never cached 
 single request, which is both slow and rude to a free API. The fallback now scopes to the 54 African
 ISO3 codes: 0.81MB, one page, still 54/54 coverage, and no date bound, so an indicator whose most
 recent observation is old is still found.
+
+## African animation — competitive map
+
+`/animation` carries a 48-studio competitive map across 17 countries: Algeria, Cameroon, Côte
+d'Ivoire, Egypt, Ethiopia, Ghana, Kenya, Morocco, Nigeria, Rwanda, Senegal, South Africa, Tanzania,
+Tunisia, Uganda, Zambia and Zimbabwe. Every row carries its sources.
+
+### The rule that governs the whole table: no field asserts absence
+
+Capability and distribution flags are typed `true | null`. **There is no `false`.**
+
+"We found no evidence of a Netflix deal" is not "this studio has no Netflix deal". Writing `false`
+would convert absence of evidence into a positive claim about a real, named company — the boolean
+form of the ZERO ≠ UNKNOWN rule, and more damaging here because it would understate a real business
+on a page that reads as a competitive assessment. A dimmed cell means *not documented*, and the
+drawer says so in as many words. `tests/animation-studios.test.ts` asserts no flag is ever `false`.
+
+### What was excluded, and why the count is 48 rather than 100
+
+Several widely-syndicated "top African animation studios" listicles name studios with no founder, no
+founding year, no website and no production anyone can check — some read as generated filler. Those
+names are not reproduced here. Padding the count with unverifiable companies would make every other
+row suspect, so the map is shorter than it could be and every row is checkable.
+
+**One error caught and corrected in passing:** a listicle credits *Iwájú* to Anthill Studios. It is
+not theirs. *Iwájú* was Walt Disney Animation Studios with Kugali Media, animated at Cinesite, and
+premiered on Disney+ on 28 February 2024. Anthill's record stands on its own work, and a test pins
+the correction so the error cannot creep back in.
+
+Provenance splits 8 official / 19 third-party verified / 21 community-or-press. Closed studios are
+labelled rather than dropped — Clockwork Zoo was South Africa's largest animation studio until it
+closed in 2011, and a competitive map that silently omits failures misrepresents sector risk.
+
+### Tiers are editorial, and say so
+
+🔵 Big · 🟣 Scale-up · 🟢 Established indie · 🟡 Emerging indie. The criteria are printed on the page
+beside the tier filter so a reader can disagree with a call rather than mistake it for a published
+fact. A test enforces that the top tier requires both a documented platform credit and original IP.
+
+### Why the studio count does NOT feed the "best for animation" ranking
+
+The obvious move — use the 48 rows as the industry-maturity input — was tried and reverted.
+
+A raw row count measures how well a country is **documented**, not how much industry it has. The map
+holds 19 Nigerian studios against 6 South African ones, because Nigerian animation is covered in
+depth by English-language trade press while South Africa is not enumerated the same way — despite
+hosting Triggerfish and Sunrise Productions, the two deepest international slates on the continent.
+Wiring it in normalised Nigeria to 100 and South Africa to 32, and dropped South Africa's animation
+score from 75.7 to 73.9. That is a research artefact presented as an industry finding.
+
+The ranking therefore still uses the original curated seed, and `animationProfileCountByCountry()`
+carries the reasoning at the call site. A defensible replacement would weight by documented
+international credits or tier rather than by row count; that measure does not exist yet, and
+inventing one to justify the wiring would be the same mistake in a different costume.

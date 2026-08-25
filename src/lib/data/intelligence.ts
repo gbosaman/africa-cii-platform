@@ -11,6 +11,7 @@ import {
   esportsOrgCountByCountry,
 } from "@/lib/data/creative";
 import { getStudios, getGames } from "@/lib/data/repository";
+import { ANIMATION_STUDIO_PROFILES } from "@/lib/data/animation-studios";
 import { directoryCountByCountry, buildStudioDirectory } from "@/lib/data/studio-directory";
 import type { CompositeScore, MetricValue, RankingMode, Studio } from "@/lib/types";
 import type { MetricSnapshot } from "@/lib/scoring/market";
@@ -31,6 +32,32 @@ function countMetric(
       kind: "verified", confidence: "MEDIUM", sourceId: "official_site",
       datasetName: "Platform verified seed / DB",
     };
+  }
+  return out;
+}
+
+/**
+ * Counts from the animation competitive map, keyed by ISO3.
+ *
+ * NOT WIRED INTO SCORING, on purpose. A raw row count measures how well a
+ * country is DOCUMENTED, not how much industry it has. The map holds 19
+ * Nigerian studios and 6 South African ones because Nigerian animation is
+ * covered in depth by English-language trade press, while South Africa —
+ * home to Triggerfish and Sunrise, the two deepest international slates on
+ * the continent — is not enumerated the same way. Feeding that into "best for
+ * animation" would rank Nigeria at 100 and South Africa at 32 and call a
+ * research artefact an industry finding.
+ *
+ * A defensible signal would weight by documented international credits or
+ * tier rather than by row count. Kept here, exported for the UI's own counts,
+ * until such a measure exists.
+ */
+export function animationProfileCountByCountry(): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const a of ANIMATION_STUDIO_PROFILES) {
+    // A closed studio is not present industry capacity.
+    if (a.status === "closed") continue;
+    out[a.countryIso3] = (out[a.countryIso3] ?? 0) + 1;
   }
   return out;
 }
@@ -81,6 +108,9 @@ export const getIntelligence = cache(async (): Promise<Intelligence> => {
       mergeCounts(studioCountByCountry(studios), directoryCountByCountry()),
       "studios",
     ),
+    // DELIBERATELY NOT fed from the 48-row competitive map. See
+    // animationProfileCountByCountry() for why a raw directory count cannot be
+    // used as an industry-capacity signal.
     animation_count: countMetric("animation_count", animationCountByCountry(), "studios"),
     esports_org_count: countMetric("esports_org_count", esportsOrgCountByCountry(), "orgs"),
   };
