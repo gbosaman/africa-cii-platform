@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import {
-  MARKET_FORECAST,
-  FORECAST_PROVENANCE,
-  type ForecastStat,
-} from "@/lib/data/market-forecast";
+import { MARKET_FORECAST, type ForecastStat } from "@/lib/data/market-forecast";
 
 /**
- * Rotating hero forecast figures, in the heavy condensed poster style.
+ * Rotating hero headline figures, in the heavy condensed poster style.
  *
  * Each stat fades in, holds, then fades out before the next — so one figure at
- * a time gets the full width and can be set genuinely large, rather than three
+ * a time gets the full width and can be set genuinely large, rather than six
  * competing for the same column.
  *
+ * Provenance is per-figure, not per-block: the UNESCO film figures, the
+ * commercial animation valuation and the unsourced games projections each
+ * carry their own badge and source line. See market-forecast.ts.
+ *
  * Accessibility: under `prefers-reduced-motion` the rotation stops entirely and
- * all three are rendered stacked and static. A cycling headline is exactly the
- * kind of motion that setting exists to suppress, and the information must not
- * be lost when it is honoured — so the reduced path shows more, not less.
+ * every figure is rendered stacked and static. A cycling headline is exactly
+ * the kind of motion that setting exists to suppress, and the information must
+ * not be lost when it is honoured — so the reduced path shows more, not less.
  */
 
 const HOLD_MS = 3600;
@@ -28,6 +28,13 @@ const ACCENT: Record<ForecastStat["accent"], { text: string; glow: string; rule:
   orange: { text: "#f59e0b", glow: "rgba(245,158,11,0.35)", rule: "rgba(245,158,11,0.55)" },
   blue: { text: "#38bdf8", glow: "rgba(56,189,248,0.35)", rule: "rgba(56,189,248,0.55)" },
   violet: { text: "#a855f7", glow: "rgba(168,85,247,0.35)", rule: "rgba(168,85,247,0.55)" },
+  emerald: { text: "#22c55e", glow: "rgba(34,197,94,0.35)", rule: "rgba(34,197,94,0.55)" },
+};
+
+const TAG_STYLE: Record<ForecastStat["tag"], string> = {
+  FORECAST: "border-warn-500/40 bg-warn-500/10 text-warn-400",
+  ESTIMATE: "border-info-500/40 bg-info-500/10 text-info-400",
+  RESEARCH: "border-violet2-500/40 bg-violet2-500/10 text-violet2-400",
 };
 
 export function HeroForecast() {
@@ -59,20 +66,22 @@ export function HeroForecast() {
 
   if (reduced) {
     return (
-      <Frame>
-        <div className="space-y-6">
-          {MARKET_FORECAST.map((s) => (
-            <Figure key={s.id} stat={s} compact />
-          ))}
-        </div>
-      </Frame>
+      <div className="w-full space-y-8">
+        {MARKET_FORECAST.map((s) => (
+          <div key={s.id}>
+            <Provenance stat={s} />
+            <Figure stat={s} compact />
+          </div>
+        ))}
+      </div>
     );
   }
 
   const stat = MARKET_FORECAST[index]!;
 
   return (
-    <Frame>
+    <div className="relative w-full">
+      <Provenance stat={stat} />
       <div
         // Height is reserved for the tallest stat so the swap does not shift
         // the page — the whole hero would jump every 4 seconds otherwise.
@@ -101,25 +110,34 @@ export function HeroForecast() {
           />
         ))}
       </div>
-    </Frame>
+    </div>
   );
 }
 
-function Frame({ children }: { children: React.ReactNode }) {
+/**
+ * Each figure states its own provenance. A UNESCO estimate and an unsourced
+ * projection must not sit behind the same badge — one would be understated and
+ * the other flattered.
+ */
+function Provenance({ stat }: { stat: ForecastStat }) {
   return (
-    <div className="relative w-full">
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="pill border-warn-500/40 bg-warn-500/10 text-warn-400">
-          {FORECAST_PROVENANCE.kind}
-        </span>
-        <span
-          className="text-[10.5px] leading-tight text-slate-500"
-          title={FORECAST_PROVENANCE.note}
+    <div className="mb-4 flex min-h-[34px] flex-wrap items-center gap-2">
+      <span className={`pill ${TAG_STYLE[stat.tag]}`}>{stat.tag}</span>
+      {stat.source ? (
+        <a
+          href={stat.source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={stat.note}
+          className="max-w-[15rem] truncate text-[10.5px] leading-tight text-slate-500 underline decoration-dotted underline-offset-2 hover:text-slate-300"
         >
-          {FORECAST_PROVENANCE.sourceLabel ?? "Projection · source pending verification"}
+          {stat.source.label}
+        </a>
+      ) : (
+        <span className="text-[10.5px] leading-tight text-slate-500" title={stat.note}>
+          Projection · source pending verification
         </span>
-      </div>
-      {children}
+      )}
     </div>
   );
 }

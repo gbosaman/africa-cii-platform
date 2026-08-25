@@ -619,7 +619,7 @@ One consequence worth stating on the page, and stated there: the link-health swe
 game-studio websites at its run date. The animation records were added afterwards and have **not**
 been link-checked, so they carry no health flag either way rather than an implied pass.
 
-### Hero forecast figures — labelled, not asserted
+### Hero headline figures — provenance is per-figure
 
 The home hero carries three supplied figures: **$1.98B** market size (2026), **406.25M** players and
 **81.8% mobile ($1.62B)**.
@@ -648,3 +648,38 @@ full column and can be set large. Under `prefers-reduced-motion` the rotation st
 render stacked and static: the reduced path shows more, not less, because suppressing the animation
 must not cost the reader the information. Height is reserved for the tallest stat so the hero does
 not shift on each swap.
+
+#### Three further figures added, with three different pedigrees
+
+The hero rotation now carries six figures, and they do **not** share a provenance — so they no
+longer share a badge. Collapsing them under one label would have understated the sourced ones and
+flattered the unsourced ones.
+
+| Figure | Tag | Source |
+|---|---|---|
+| $1.98B games market (2026) | FORECAST | none found |
+| 406.25M players | FORECAST | none found |
+| 81.8% mobile ($1.62B) | FORECAST | none found |
+| **$5B** film & audiovisual contribution to GDP | ESTIMATE | UNESCO (2021) |
+| **5M** people employed by the sector | ESTIMATE | UNESCO (2021) |
+| **$15.71B** Africa animation market | RESEARCH | Market Data Forecast |
+
+**The UNESCO pair is genuinely sourced.** Both come from *The African Film Industry: Trends,
+Challenges and Opportunities for Growth* (2021), the first continent-wide mapping of the sector,
+which puts the industry at roughly 5 million jobs and $5B of GDP — against an untapped potential
+UNESCO estimates at 20 million jobs and $20B. The same report finds piracy takes 50–75% of the
+sector's revenue and that only 19 of 54 African countries offer any financial support to filmmakers.
+These are labelled ESTIMATE because UNESCO labels them so, and they link to the report PDF.
+
+**Two corrections were needed on the animation figure.** It was supplied as "the animation Market
+Data Forecast: $15.71B", which reads as a forecast. It is not: $15.71B is Market Data Forecast's
+**2025 valuation** of the Africa animation market — the same publisher puts 2026 at $17B and 2034 at
+$31.93B. The card therefore reads *"valued at … in 2025"* rather than implying a forecast year.
+
+It also carries a caution in its note, because the figure sits oddly against its neighbours: other
+research houses size **Middle East *and* Africa** animation at $1.8B–$8.76B, well below this figure
+for Africa alone, and $15.71B for animation would exceed UNESCO's $5B for the entire African film
+and audiovisual sector. One of those framings is measuring something quite different from the other.
+The number is displayed as supplied and attributed to its publisher, with the tension stated rather
+than smoothed over — methodology behind the commercial figure is not public, so it cannot be
+reconciled here.
