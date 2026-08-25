@@ -245,3 +245,10 @@ export interface IndustryEvent {
   importance: "low" | "medium" | "high";
   verified: boolean;
 }
+
+/** A selectable choropleth layer: iso3 -> 0..100 score, or null for unknown. */
+export interface MapLayerDef {
+  key: string;
+  label: string;
+  values: Record<string, number | null>;
+}

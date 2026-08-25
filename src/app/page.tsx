@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getIntelligence, buildMapLayers } from "@/lib/data/intelligence";
-import { AfricaMap } from "@/components/map/AfricaMap";
+import { AfricaLeafletMap } from "@/components/map/LeafletMapLoader";
 import { COUNTRY_BY_ISO3, flagEmoji } from "@/lib/data/countries";
 import { MetricNumber } from "@/components/metric/MetricNumber";
 import { Panel, SectionHeader, ScoreBar, RankBadge, Pill, CoverageBadge, KpiCard } from "@/components/ui/primitives";
@@ -137,9 +137,16 @@ export default async function DashboardPage() {
           <SectionHeader
             eyebrow="Interactive map"
             title="Africa by score"
-            action={<CoverageBadge coverage={intel.counts.coverageAvg} />}
+            action={
+              <div className="flex items-center gap-3">
+                <CoverageBadge coverage={intel.counts.coverageAvg} />
+                <Link href="/map" className="text-xs font-medium text-accent-400 hover:text-accent-500">
+                  Full map →
+                </Link>
+              </div>
+            }
           />
-          <AfricaMap layers={layers} />
+          <AfricaLeafletMap layers={layers} height={420} compact />
         </Panel>
 
         <Panel className="lg:col-span-2">

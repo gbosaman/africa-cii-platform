@@ -14,7 +14,7 @@ import { getStudios, getGames } from "@/lib/data/repository";
 import { directoryCountByCountry, buildStudioDirectory } from "@/lib/data/studio-directory";
 import type { CompositeScore, MetricValue, RankingMode, Studio } from "@/lib/types";
 import type { MetricSnapshot } from "@/lib/scoring/market";
-import type { MapLayer } from "@/components/map/AfricaMap";
+import type { MapLayerDef } from "@/lib/types";
 
 /** Build a count "metric" map (iso3 → MetricValue). Zero counts become null:
  *  absence of a catalogued record is UNKNOWN, not a factual zero. */
@@ -122,7 +122,7 @@ export const getIntelligence = cache(async (): Promise<Intelligence> => {
 });
 
 /** Build the map layer set from computed scores (+ a digital-access layer). */
-export function buildMapLayers(intel: Intelligence): MapLayer[] {
+export function buildMapLayers(intel: Intelligence): MapLayerDef[] {
   const toValues = (mode: RankingMode) =>
     Object.fromEntries(intel.scores[mode].map((s) => [s.entityId, s.total])) as Record<
       string,

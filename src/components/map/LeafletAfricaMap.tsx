@@ -11,12 +11,9 @@ import { AFRICA_GEOJSON, MISSING_GEOMETRY } from "@/lib/data/africa-geo";
 import { CENTROIDS } from "@/lib/data/centroids";
 import { COUNTRY_BY_ISO3 } from "@/lib/data/countries";
 import { fmtScore } from "@/lib/format";
+import type { MapLayerDef } from "@/lib/types";
 
-export interface MapLayerDef {
-  key: string;
-  label: string;
-  values: Record<string, number | null>;
-}
+export type { MapLayerDef } from "@/lib/types";
 
 /**
  * Choropleth ramp: navy (low) → emerald (mid) → blue (high), matching the
@@ -39,7 +36,16 @@ function ramp(v: number | null): string {
   return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 }
 
-export function LeafletAfricaMap({ layers }: { layers: MapLayerDef[] }) {
+export function LeafletAfricaMap({
+  layers,
+  height = 520,
+  compact = false,
+}: {
+  layers: MapLayerDef[];
+  height?: number;
+  /** Trims the caption to a single line for tight dashboard panels. */
+  compact?: boolean;
+}) {
   const router = useRouter();
   const [layerKey, setLayerKey] = useState(layers[0]?.key ?? "");
   const [hover, setHover] = useState<{ iso3: string; name: string; v: number | null } | null>(null);
@@ -120,7 +126,7 @@ export function LeafletAfricaMap({ layers }: { layers: MapLayerDef[] }) {
           minZoom={2}
           maxZoom={7}
           scrollWheelZoom={false}
-          style={{ height: 520, width: "100%", background: "#070a12" }}
+          style={{ height, width: "100%", background: "#070a12" }}
           attributionControl
         >
           <TileLayer
@@ -157,9 +163,9 @@ export function LeafletAfricaMap({ layers }: { layers: MapLayerDef[] }) {
 
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[11px] leading-relaxed text-slate-500">
-          Boundaries © OpenStreetMap contributors / Natural Earth (public domain), bundled with the
-          app. Hollow, dashed countries have no value for this layer — unknown, not zero. The five
-          island states without boundary geometry in the source are drawn as points.
+          {compact
+            ? "Hollow, dashed countries have no value for this layer — unknown, not zero. Boundaries © OpenStreetMap / Natural Earth."
+            : "Boundaries © OpenStreetMap contributors / Natural Earth (public domain), bundled with the app. Hollow, dashed countries have no value for this layer — unknown, not zero. The five island states without boundary geometry in the source are drawn as points."}
         </p>
         <div className="flex shrink-0 items-center gap-2 self-start rounded-lg border border-line bg-ink-850 px-3 py-2">
           <span className="text-[10px] uppercase tracking-wider text-slate-500">Low</span>
