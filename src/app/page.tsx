@@ -6,6 +6,7 @@ import { MetricNumber } from "@/components/metric/MetricNumber";
 import { Panel, SectionHeader, ScoreBar, RankBadge, Pill, CoverageBadge, KpiCard } from "@/components/ui/primitives";
 import { HeroCanvas } from "@/components/hero/HeroCanvas";
 import { Ticker, type TickerItem } from "@/components/hero/Ticker";
+import { HeroForecast } from "@/components/hero/HeroForecast";
 import { Icon } from "@/components/ui/Icon";
 import { fmtScore, fmtNumber } from "@/lib/format";
 import { STUDIOS, ANIMATION_STUDIOS } from "@/lib/data/studios";
@@ -61,7 +62,8 @@ export default async function DashboardPage() {
       {/* ── Hero with ambient constellation banner ───────────────────── */}
       <section className="relative -mx-4 overflow-hidden border-b border-line px-4 pb-10 pt-8 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <HeroCanvas />
-        <div className="relative z-10 max-w-3xl">
+        <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div className="min-w-0 max-w-3xl">
           <span className="pill mb-5 border-[rgba(34,197,94,0.3)] bg-[var(--emerald-soft)] text-accent-400">
             <span className="dot-live" /> Live market intelligence · 54 countries
           </span>
@@ -88,6 +90,13 @@ export default async function DashboardPage() {
             >
               Explore the map
             </Link>
+            </div>
+          </div>
+
+          {/* Forecast figures — labelled as projection, kept apart from the
+              measured World Bank series the rest of the page runs on. */}
+          <div className="min-w-0 lg:justify-self-end lg:border-l lg:border-line lg:pl-10">
+            <HeroForecast />
           </div>
         </div>
       </section>

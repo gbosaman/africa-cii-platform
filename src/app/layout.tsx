@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Archivo, JetBrains_Mono } from "next/font/google";
+import { Inter, Archivo, JetBrains_Mono, Anton, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
@@ -14,6 +14,22 @@ const archivo = Archivo({
   display: "swap",
 });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+
+// Heavy condensed pair for the hero forecast figures. Anton carries the
+// numerals, Barlow Condensed the uppercase labels beneath them. Both are
+// self-hosted by next/font — no external stylesheet, no CDN request.
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-poster",
+  display: "swap",
+});
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-poster-label",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -33,7 +49,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable} ${anton.variable} ${barlowCondensed.variable}`}>
       <body className="min-h-screen font-sans antialiased">
         <MetricDrawerProvider>
           <div className="flex min-h-screen">

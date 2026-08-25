@@ -618,3 +618,33 @@ is a game developer. The total stayed at 182 after the merge, which is the check
 One consequence worth stating on the page, and stated there: the link-health sweep covered the 181
 game-studio websites at its run date. The animation records were added afterwards and have **not**
 been link-checked, so they carry no health flag either way rather than an implied pass.
+
+### Hero forecast figures — labelled, not asserted
+
+The home hero carries three supplied figures: **$1.98B** market size (2026), **406.25M** players and
+**81.8% mobile ($1.62B)**.
+
+**These are not measurements and are not presented as such.** A search for a free, checkable source
+carrying this exact set found none. Published 2026 forecasts elsewhere span roughly **$2.29B to
+$4.8B**, and mobile share is reported anywhere between **61% and 87%** depending on whether the
+figure measures revenue or players. No free source corroborates this particular combination.
+
+They are therefore rendered behind a **FORECAST** badge reading *"Projection · source pending
+verification"*, kept visually and structurally apart from the World Bank series the rest of the page
+runs on, and stored in `src/lib/data/market-forecast.ts` with a `sourceLabel` field left explicitly
+`null` and a note recording the spread above. Filling in that one field is all that is needed once
+the originating report is known — the UI already renders it in place of the pending line.
+
+This follows the platform's founding rule: an estimate may be displayed, but it must be labelled as
+one, and it must never be mixed in with measured data.
+
+**Typography.** Only the font style was taken from the supplied reference: Anton for the numerals
+and Barlow Condensed for the uppercase labels, both self-hosted through `next/font` with no external
+stylesheet. Colours stay on the platform's own orange/blue/violet accents rather than the
+reference's palette.
+
+**Motion.** The three figures rotate — each fades in, holds, fades out — so a single figure gets the
+full column and can be set large. Under `prefers-reduced-motion` the rotation stops and all three
+render stacked and static: the reduced path shows more, not less, because suppressing the animation
+must not cost the reader the information. Height is reserved for the tallest stat so the hero does
+not shift on each swap.

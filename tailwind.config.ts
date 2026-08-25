@@ -63,6 +63,9 @@ const config: Config = {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        // Heavy condensed poster pair, used by the hero forecast figures.
+        poster: ["var(--font-poster)", "Impact", "Haettenschweiler", "sans-serif"],
+        "poster-label": ["var(--font-poster-label)", "Oswald", "sans-serif"],
       },
       borderRadius: {
         card: "18px",
