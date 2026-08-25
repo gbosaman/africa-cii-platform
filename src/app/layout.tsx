@@ -33,7 +33,7 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: {
-    default: "Africa CII — Creative Industries Intelligence",
+    default: "Africa CII — African Gaming & Animation Intelligence",
     template: "%s · Africa CII",
   },
   description:

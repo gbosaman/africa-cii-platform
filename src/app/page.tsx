@@ -73,9 +73,9 @@ export default async function DashboardPage() {
             <span className="gradient-text">animation</span> intelligence
           </h1>
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-400">
-            Bloomberg-grade analytics for the world&apos;s fastest-growing creative market — games,
-            esports, animation, studios, hardware and investment intelligence, continuously updated
-            from free public data. Every number traces to its source.
+            Decision-ready intelligence on Africa&apos;s games, esports and animation economy —
+            markets, studios, titles, hardware and funding across all 54 countries, continuously
+            updated from free public data. Every number traces to its source.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
