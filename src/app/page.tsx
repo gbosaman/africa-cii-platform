@@ -91,6 +91,21 @@ export default async function DashboardPage() {
               Explore the map
             </Link>
             </div>
+
+            {/* The advisor is a tool rather than a view, so it sits on its own
+                line and says what it produces — "Studio advisor" alone does not
+                tell a first-time visitor what they get. */}
+            <Link
+              href="/advisor"
+              className="group mt-3 inline-flex items-center gap-2.5 rounded-[12px] border border-info-500/30 bg-info-500/5 px-5 py-2.5 text-sm font-semibold text-info-400 transition-colors hover:border-info-500/60 hover:bg-info-500/10"
+            >
+              <Icon name="compass" className="h-4 w-4" />
+              Plan your studio or project
+              <span className="font-normal text-slate-500 group-hover:text-slate-400">
+                Studio advisor
+              </span>
+              <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
 
           {/* Forecast figures — labelled as projection, kept apart from the
